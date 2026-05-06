@@ -1,0 +1,149 @@
+{
+  "protocolId": "bacnet-ip",
+  "protocolName": "BACnet/IP",
+  "version": "1.0.0",
+  "supportedTransports": ["udp"],
+  "capabilities": ["connect", "read", "write", "poll", "invokeCapability"],
+  "category": "building",
+  "defaultTransport": "udp",
+  "defaultConfig": {
+    "host": "255.255.255.255",
+    "port": 47808,
+    "localPort": 47808,
+    "bindAddress": "0.0.0.0",
+    "connectTimeoutMs": 3000,
+    "readTimeoutMs": 5000
+  },
+  "configSchema": {
+    "connection": {
+      "host": {
+        "type": "string",
+        "default": "255.255.255.255",
+        "description": "BACnet/IP target address. Use 255.255.255.255 for broadcast discovery.",
+        "required": true
+      },
+      "port": {
+        "type": "number",
+        "default": 47808,
+        "min": 1,
+        "max": 65535,
+        "description": "BACnet/IP UDP port (standard: 47808 / 0xBAC0)",
+        "required": true
+      },
+      "localPort": {
+        "type": "number",
+        "default": 47808,
+        "min": 0,
+        "max": 65535,
+        "description": "Local UDP port to bind for receiving responses"
+      },
+      "bindAddress": {
+        "type": "string",
+        "default": "0.0.0.0",
+        "description": "Local network interface to bind (0.0.0.0 for all interfaces)"
+      },
+      "connectTimeoutMs": {
+        "type": "number",
+        "default": 3000,
+        "min": 1000,
+        "max": 30000,
+        "description": "Timeout for UDP socket bind in milliseconds"
+      }
+    },
+    "protocol": {
+      "readTimeoutMs": {
+        "type": "number",
+        "default": 5000,
+        "min": 1000,
+        "max": 60000,
+        "description": "Timeout for waiting for BACnet responses"
+      },
+      "deviceId": {
+        "type": "number",
+        "default": 0,
+        "min": 0,
+        "max": 4194303,
+        "description": "Local BACnet device instance number for identification (0 = auto-assign)"
+      },
+      "networkNumber": {
+        "type": "number",
+        "default": 0,
+        "min": 0,
+        "max": 65535,
+        "description": "BACnet network number (0 = local network)"
+      }
+    },
+    "advanced": {
+      "maxApduLength": {
+        "type": "number",
+        "default": 1476,
+        "enum": [50, 128, 206, 480, 1024, 1476],
+        "description": "Maximum APDU length accepted in bytes (BACnet standard options)"
+      },
+      "segmentationSupported": {
+        "type": "string",
+        "default": "segmented-both",
+        "enum": ["segmented-both", "segmented-transmit", "segmented-receive", "no-segmentation"],
+        "description": "Segmentation support advertised to remote devices"
+      },
+      "foreignDevice": {
+        "type": "boolean",
+        "default": false,
+        "description": "Register as a foreign device with a BBMD (BACnet Broadcast Management Device)"
+      }
+    }
+  },
+  "connectionSummary": "BACnet/IP engine with full BVLC/NPDU/APDU framing. Supports device discovery (Who-Is/I-Am), property read/write (ReadProperty/WriteProperty), bulk reads (ReadPropertyMultiple), and object discovery (Who-Has). Uses UDP port 47808 (0xBAC0) by default.",
+  "connectionSteps": [
+    "Set the target BACnet/IP host and UDP port. The standard port is 47808 (0xBAC0). Use 255.255.255.255 for broadcast discovery.",
+    "Choose a local UDP port for bind. The default 47808 is recommended for BACnet/IP compliance.",
+    "The engine will bind a UDP socket and be ready to send/receive BACnet/IP frames with proper BVLC framing.",
+    "Use invokeCapability 'whoIs' to discover devices on the network, then read/write properties using BACnet address format 'objectType:instance:propertyId'."
+  ],
+  "readBehavior": "Read uses BACnet ReadProperty service. Address format: 'objectType:instance:propertyId' (e.g., '8:1234:85' for Device 1234 present-value). Returns JSON-encoded BACnet application-tagged value.",
+  "writeBehavior": "Write uses BACnet WriteProperty service. Address format: 'objectType:instance:propertyId'. Data should be a JSON-encoded BacnetValue with tag and value fields (e.g., '{\"tag\":91,\"value\":1}' for enumerated).",
+  "capabilityDetails": {
+    "whoIs": {
+      "description": "Discover BACnet devices on the network. Returns array of BacnetDevice objects.",
+      "params": {
+        "lowLimit": { "type": "number", "required": false, "description": "Low device instance limit" },
+        "highLimit": { "type": "number", "required": false, "description": "High device instance limit" }
+      }
+    },
+    "readProperty": {
+      "description": "Read a single BACnet property. Returns BacnetValue.",
+      "params": {
+        "objectType": { "type": "number", "required": true, "description": "BACnet object type (e.g., 8=Device)" },
+        "objectInstance": { "type": "number", "required": true, "description": "Object instance number" },
+        "propertyId": { "type": "number", "required": true, "description": "BACnet property ID (e.g., 77=object-name)" },
+        "arrayIndex": { "type": "number", "required": false, "description": "Optional array index" }
+      }
+    },
+    "writeProperty": {
+      "description": "Write a single BACnet property.",
+      "params": {
+        "objectType": { "type": "number", "required": true, "description": "BACnet object type" },
+        "objectInstance": { "type": "number", "required": true, "description": "Object instance number" },
+        "propertyId": { "type": "number", "required": true, "description": "BACnet property ID" },
+        "value": { "type": "object", "required": true, "description": "BacnetValue with tag and value" },
+        "priority": { "type": "number", "required": false, "description": "Write priority (1-16)" }
+      }
+    },
+    "readPropertyMultiple": {
+      "description": "Read multiple BACnet properties in one request. Returns array of BacnetValue.",
+      "params": {
+        "objectType": { "type": "number", "required": true, "description": "BACnet object type" },
+        "objectInstance": { "type": "number", "required": true, "description": "Object instance number" },
+        "propertyIds": { "type": "array", "required": true, "description": "Array of property IDs to read" }
+      }
+    },
+    "whoHas": {
+      "description": "Discover objects by name or instance. Returns array of I-Have responses.",
+      "params": {
+        "objectName": { "type": "string", "required": false, "description": "Object name to search for" },
+        "objectType": { "type": "number", "required": false, "description": "Object type to search for" },
+        "objectInstance": { "type": "number", "required": false, "description": "Object instance to search for" }
+      }
+    }
+  }
+}

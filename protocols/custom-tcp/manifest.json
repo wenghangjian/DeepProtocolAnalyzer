@@ -1,0 +1,78 @@
+{
+  "protocolId": "custom-tcp",
+  "protocolName": "Custom TCP",
+  "version": "2.0.0",
+  "supportedTransports": ["tcp"],
+  "capabilities": ["connect", "read", "write", "poll"],
+  "category": "custom",
+  "defaultTransport": "tcp",
+  "defaultConfig": {
+    "host": "127.0.0.1",
+    "port": 8080,
+    "responseTimeoutMs": 3000,
+    "defaultSendMode": "hex"
+  },
+  "configSchema": {
+    "connection": {
+      "host": {
+        "type": "string",
+        "default": "127.0.0.1",
+        "description": "Target host address",
+        "required": true
+      },
+      "port": {
+        "type": "number",
+        "default": 8080,
+        "min": 1,
+        "max": 65535,
+        "description": "Target TCP port",
+        "required": true
+      },
+      "connectTimeoutMs": {
+        "type": "number",
+        "default": 5000,
+        "min": 1000,
+        "max": 60000,
+        "description": "TCP connection timeout in milliseconds"
+      }
+    },
+    "protocol": {
+      "readTimeoutMs": {
+        "type": "number",
+        "default": 5000,
+        "min": 100,
+        "max": 60000,
+        "description": "Read timeout in milliseconds"
+      },
+      "responseTimeoutMs": {
+        "type": "number",
+        "default": 3000,
+        "min": 100,
+        "max": 30000,
+        "description": "Response timeout for read/write operations in milliseconds"
+      },
+      "defaultSendMode": {
+        "type": "string",
+        "enum": ["hex", "ascii", "raw"],
+        "default": "hex",
+        "description": "Default send mode for frame encoding (hex = hex string, ascii = ASCII text, raw = raw bytes)"
+      }
+    },
+    "advanced": {
+      "autoReconnect": {
+        "type": "boolean",
+        "default": false,
+        "description": "Automatically reconnect on disconnect"
+      }
+    }
+  },
+  "connectionSummary": "Raw TCP message tunnel for private protocols and gateway debugging with HEX/ASCII send modes, timed auto-send, and CRC/LRC calculation.",
+  "connectionSteps": [
+    "Fill in the target host and TCP port.",
+    "After the session is connected, send HEX, ASCII, or raw bytes directly.",
+    "Read actions wait for the next received frame without additional protocol parsing.",
+    "Use auto-send for periodic frame transmission at configurable intervals.",
+    "Append CRC-16/Modbus or LRC to frames for protocol compliance."
+  ],
+  "readBehavior": "Read waits for the next incoming frame. Write forwards the encoded byte sequence. Supports hex, ascii, and raw send modes with optional CRC/LRC appending."
+}

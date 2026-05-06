@@ -1,0 +1,121 @@
+{
+  "protocolId": "modbus-rtu",
+  "protocolName": "Modbus RTU",
+  "version": "1.1.0",
+  "supportedTransports": ["serial"],
+  "capabilities": [
+    "connect",
+    "read",
+    "write",
+    "poll",
+    "read-coils",
+    "read-discrete-inputs",
+    "read-holding-registers",
+    "read-input-registers",
+    "write-single-coil",
+    "write-single-register",
+    "write-multiple-coils",
+    "write-multiple-registers"
+  ],
+  "category": "modbus",
+  "defaultTransport": "serial",
+  "defaultConfig": {
+    "path": "COM1",
+    "baudRate": 9600,
+    "unitId": 1
+  },
+  "configSchema": {
+    "connection": {
+      "path": {
+        "type": "string",
+        "default": "COM1",
+        "description": "Serial port path (e.g. COM1, /dev/ttyUSB0)",
+        "required": true
+      },
+      "baudRate": {
+        "type": "number",
+        "default": 9600,
+        "enum": [300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200],
+        "description": "Serial baud rate",
+        "required": true
+      },
+      "dataBits": {
+        "type": "number",
+        "default": 8,
+        "enum": [7, 8],
+        "description": "Number of data bits per frame"
+      },
+      "stopBits": {
+        "type": "number",
+        "default": 1,
+        "enum": [1, 2],
+        "description": "Number of stop bits per frame"
+      },
+      "parity": {
+        "type": "string",
+        "default": "none",
+        "enum": ["none", "even", "odd"],
+        "description": "Parity checking mode"
+      }
+    },
+    "protocol": {
+      "unitId": {
+        "type": "number",
+        "default": 1,
+        "min": 0,
+        "max": 255,
+        "description": "Modbus unit/slave ID (0 = broadcast, 1-247 = specific device)"
+      },
+      "readTimeoutMs": {
+        "type": "number",
+        "default": 3000,
+        "min": 100,
+        "max": 30000,
+        "description": "Read operation response timeout in milliseconds"
+      },
+      "writeTimeoutMs": {
+        "type": "number",
+        "default": 3000,
+        "min": 100,
+        "max": 30000,
+        "description": "Write operation response timeout in milliseconds"
+      },
+      "responseTimeoutMs": {
+        "type": "number",
+        "default": 3000,
+        "min": 100,
+        "max": 30000,
+        "description": "General response timeout in milliseconds"
+      },
+      "interFrameTimeoutMs": {
+        "type": "number",
+        "default": 50,
+        "min": 1,
+        "max": 1000,
+        "description": "Inter-frame silence timeout in milliseconds (3.5 character times at 9600 baud ≈ 4ms)"
+      }
+    }
+  },
+  "connectionSummary": "Modbus RTU client workflow for RS-485 and serial-connected devices.",
+  "connectionSteps": [
+    "Choose the target COM port from the live serial resource list.",
+    "Match the baud rate and unit address used by the field device.",
+    "After connection, read and write registers. CRC is appended and validated automatically."
+  ],
+  "readBehavior": "Read operations emit a complete RTU frame and validate CRC on the received response. Supports FC01 (Read Coils), FC02 (Read Discrete Inputs), FC03 (Read Holding Registers), and FC04 (Read Input Registers).",
+  "writeBehavior": "Write operations support FC05 (Write Single Coil), FC06 (Write Single Register), FC15 (Write Multiple Coils), and FC16 (Write Multiple Registers). CRC is appended and validated automatically.",
+  "functionCodes": {
+    "read": {
+      "FC01": "Read Coils (bit-packed)",
+      "FC02": "Read Discrete Inputs (bit-packed)",
+      "FC03": "Read Holding Registers",
+      "FC04": "Read Input Registers"
+    },
+    "write": {
+      "FC05": "Write Single Coil (0xFF00=ON, 0x0000=OFF)",
+      "FC06": "Write Single Register",
+      "FC15": "Write Multiple Coils (bit-packed)",
+      "FC16": "Write Multiple Registers"
+    }
+  }
+}

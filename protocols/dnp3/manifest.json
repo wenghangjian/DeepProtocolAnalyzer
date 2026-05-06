@@ -1,0 +1,124 @@
+{
+  "protocolId": "dnp3",
+  "protocolName": "DNP3 TCP",
+  "version": "1.0.0",
+  "supportedTransports": ["tcp"],
+  "capabilities": ["connect", "read", "write", "poll", "select", "operate", "direct-operate", "restart"],
+  "category": "scada",
+  "defaultTransport": "tcp",
+  "defaultConfig": {
+    "host": "127.0.0.1",
+    "port": 20000,
+    "sourceAddress": 1,
+    "destinationAddress": 2
+  },
+  "configSchema": {
+    "connection": {
+      "host": {
+        "type": "string",
+        "default": "127.0.0.1",
+        "description": "IP address of the DNP3 outstation",
+        "required": true
+      },
+      "port": {
+        "type": "number",
+        "default": 20000,
+        "min": 1,
+        "max": 65535,
+        "description": "DNP3 TCP port (standard: 20000)",
+        "required": true
+      },
+      "connectTimeoutMs": {
+        "type": "number",
+        "default": 5000,
+        "min": 1000,
+        "max": 30000,
+        "description": "TCP connection timeout in milliseconds"
+      }
+    },
+    "protocol": {
+      "sourceAddress": {
+        "type": "number",
+        "default": 1,
+        "min": 0,
+        "max": 65535,
+        "description": "DNP3 source (master) address",
+        "required": true
+      },
+      "destinationAddress": {
+        "type": "number",
+        "default": 2,
+        "min": 0,
+        "max": 65535,
+        "description": "DNP3 destination (outstation) address",
+        "required": true
+      },
+      "readTimeoutMs": {
+        "type": "number",
+        "default": 5000,
+        "min": 1000,
+        "max": 30000,
+        "description": "Response read timeout in milliseconds"
+      },
+      "writeTimeoutMs": {
+        "type": "number",
+        "default": 5000,
+        "min": 1000,
+        "max": 30000,
+        "description": "Write operation timeout in milliseconds"
+      },
+      "responseTimeoutMs": {
+        "type": "number",
+        "default": 5000,
+        "min": 1000,
+        "max": 30000,
+        "description": "General application-layer response timeout in milliseconds"
+      }
+    },
+    "advanced": {
+      "maxFragmentSize": {
+        "type": "number",
+        "default": 2048,
+        "min": 249,
+        "max": 65535,
+        "description": "Maximum DNP3 application-layer fragment size in bytes"
+      },
+      "class0Poll": {
+        "type": "boolean",
+        "default": true,
+        "description": "Enable Class 0 (static data) polling on connect"
+      },
+      "class1Poll": {
+        "type": "boolean",
+        "default": false,
+        "description": "Enable Class 1 (binary events) polling"
+      },
+      "class2Poll": {
+        "type": "boolean",
+        "default": false,
+        "description": "Enable Class 2 (analog events) polling"
+      },
+      "class3Poll": {
+        "type": "boolean",
+        "default": false,
+        "description": "Enable Class 3 (counter events) polling"
+      }
+    }
+  },
+  "connectionSummary": "Connects to a DNP3 outstation over TCP (port 20000 by default). Supports data-link framing with CRC-16/DNP3, transport layer reassembly, and application-layer operations including Read, Write, Select, Operate, Direct Operate, and Restart commands.",
+  "connectionSteps": [
+    "Set the Outstation IP address and TCP port (default: 20000).",
+    "Configure the Master and Outstation DNP3 addresses (default: Master=1, Outstation=2).",
+    "After connection, use Class 0/1/2/3 polls or read specific object groups (Binary Input, Counter, Analog Input, etc.).",
+    "Write, Select, Operate, and Direct Operate commands are supported for Binary Output and Analog Output objects."
+  ],
+  "readBehavior": "Read operations send DNP3 Read requests (FC 0x01) with object headers. Supports Class 0 (all data), Class 1 (binary events), Class 2 (analog events), Class 3 (counter events), and specific object group/variation queries. Responses are parsed with IIN flag checking and multi-fragment reassembly.",
+  "objectSupport": {
+    "binaryInput": { "group": 1, "variations": [0, 1, 2] },
+    "binaryOutput": { "group": 10, "variations": [0, 1, 2] },
+    "counter": { "group": 20, "variations": [0, 1, 2, 5, 6] },
+    "analogInput": { "group": 30, "variations": [0, 1, 2, 3, 4, 5] },
+    "analogOutput": { "group": 40, "variations": [0, 1, 2, 3, 4] },
+    "classData": { "group": 60, "variations": [0, 1, 2, 3] }
+  }
+}

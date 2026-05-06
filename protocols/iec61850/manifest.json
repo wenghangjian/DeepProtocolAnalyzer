@@ -1,0 +1,117 @@
+{
+  "protocolId": "iec61850",
+  "protocolName": "IEC 61850 MMS",
+  "version": "1.0.0",
+  "supportedTransports": ["tcp"],
+  "capabilities": [
+    "connect",
+    "read",
+    "write",
+    "poll",
+    "getServerDirectory",
+    "getLogicalDeviceDirectory",
+    "getLogicalNodeDirectory",
+    "getDataDirectory",
+    "getDataDefinition",
+    "identify",
+    "defineNamedVariable",
+    "deleteNamedVariable"
+  ],
+  "category": "substation",
+  "defaultTransport": "tcp",
+  "defaultConfig": {
+    "host": "127.0.0.1",
+    "port": 102
+  },
+  "configSchema": {
+    "connection": {
+      "host": {
+        "type": "string",
+        "default": "127.0.0.1",
+        "description": "IEC 61850 IED or MMS server hostname or IP address",
+        "required": true
+      },
+      "port": {
+        "type": "number",
+        "default": 102,
+        "min": 1,
+        "max": 65535,
+        "description": "MMS server TCP port (default 102, per ISO 9506/RFC 1006)",
+        "required": true
+      },
+      "connectTimeoutMs": {
+        "type": "number",
+        "default": 5000,
+        "min": 1000,
+        "max": 60000,
+        "description": "TCP connection timeout in milliseconds"
+      }
+    },
+    "protocol": {
+      "readTimeoutMs": {
+        "type": "number",
+        "default": 5000,
+        "min": 1000,
+        "max": 60000,
+        "description": "Read/response timeout in milliseconds"
+      },
+      "initiateTimeoutMs": {
+        "type": "number",
+        "default": 10000,
+        "min": 1000,
+        "max": 60000,
+        "description": "MMS Initiate handshake timeout in milliseconds"
+      },
+      "apTitle": {
+        "type": "string",
+        "default": "1.1.1.999.1",
+        "description": "AP-Title for ACSE association (ISO 8823). Identifies the calling application entity."
+      },
+      "aeQualifier": {
+        "type": "number",
+        "default": 12,
+        "min": 0,
+        "max": 65535,
+        "description": "AE-Qualifier for ACSE association. Identifies the application entity."
+      }
+    },
+    "advanced": {
+      "callingTsap": {
+        "type": "array",
+        "default": [0, 1],
+        "description": "COTP Calling TSAP selector bytes (default: [0x00, 0x01])",
+        "items": { "type": "number" }
+      },
+      "calledTsap": {
+        "type": "array",
+        "default": [0, 1],
+        "description": "COTP Called TSAP selector bytes (default: [0x00, 0x01])",
+        "items": { "type": "number" }
+      },
+      "maxServicesCalled": {
+        "type": "number",
+        "default": 10,
+        "min": 1,
+        "max": 100,
+        "description": "Maximum number of outstanding services called (MMS negotiated parameter)"
+      },
+      "maxServicesCalling": {
+        "type": "number",
+        "default": 10,
+        "min": 1,
+        "max": 100,
+        "description": "Maximum number of outstanding services calling (MMS negotiated parameter)"
+      }
+    }
+  },
+  "connectionSummary": "Connects to an IEC 61850 IED or MMS server via TCP (default port 102). Performs ISO 8073 (COTP) connection establishment followed by MMS Initiate handshake. Supports GetNameList for browsing logical devices and variables, Read/Write for data access, GetVariableAccessAttributes for type information, and Identify for server identification.",
+  "connectionSteps": [
+    "Set the target IED or MMS server host and TCP port (default: 102).",
+    "Engine sends a COTP Connection Request (CR) via TPKT (RFC 1006) and waits for Connection Confirm (CC).",
+    "Engine sends an MMS Initiate-Request PDU and receives the Initiate-Response with negotiated parameters.",
+    "With the MMS session established, GetNameList/Read/Write/Identify operations are available via capability actions.",
+    "On disconnect, an MMS Conclude-Request is sent followed by a COTP Disconnect Request for clean teardown."
+  ],
+  "readBehavior": "Read sends an MMS Read-Request for the specified IEC 61850 object reference (e.g., 'TEMPLATE/MMXU1.PhV.phsA.mag.f$MX'). The address field accepts comma-separated IEC 61850 references. Response contains the MMS Data value (integer, float, boolean, structure, etc.).",
+  "writeBehavior": "Write sends an MMS Write-Request for the specified IEC 61850 object reference. The address field accepts an IEC 61850 reference string. The data field contains raw bytes interpreted as Float32 (4 bytes), Int16 (2 bytes), or Boolean (1 byte)."
+}

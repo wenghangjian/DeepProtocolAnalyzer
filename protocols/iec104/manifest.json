@@ -1,0 +1,118 @@
+{
+  "protocolId": "iec104",
+  "protocolName": "IEC 60870-5-104",
+  "version": "1.0.0",
+  "supportedTransports": ["tcp"],
+  "capabilities": [
+    "connect",
+    "read",
+    "write",
+    "poll",
+    "general-interrogation",
+    "counter-interrogation",
+    "clock-sync",
+    "single-command",
+    "double-command",
+    "setpoint-norm",
+    "setpoint-float"
+  ],
+  "category": "substation",
+  "defaultTransport": "tcp",
+  "defaultConfig": {
+    "host": "127.0.0.1",
+    "port": 2404
+  },
+  "configSchema": {
+    "connection": {
+      "host": {
+        "type": "string",
+        "default": "127.0.0.1",
+        "description": "IEC 104 server hostname or IP address",
+        "required": true
+      },
+      "port": {
+        "type": "number",
+        "default": 2404,
+        "min": 1,
+        "max": 65535,
+        "description": "IEC 104 server TCP port (default 2404)",
+        "required": true
+      },
+      "connectTimeoutMs": {
+        "type": "number",
+        "default": 5000,
+        "min": 1000,
+        "max": 60000,
+        "description": "Connection timeout in milliseconds"
+      }
+    },
+    "protocol": {
+      "commonAddress": {
+        "type": "number",
+        "default": 1,
+        "min": 0,
+        "max": 65535,
+        "description": "Common Address of ASDU (CA). Identifies the target station."
+      },
+      "originatorAddress": {
+        "type": "number",
+        "default": 0,
+        "min": 0,
+        "max": 255,
+        "description": "Originator address (OA). Identifies the originating station."
+      },
+      "readTimeoutMs": {
+        "type": "number",
+        "default": 15000,
+        "min": 1000,
+        "max": 60000,
+        "description": "Read/response timeout in milliseconds (t1 APDU timeout)"
+      },
+      "giOnConnect": {
+        "type": "boolean",
+        "default": false,
+        "description": "Automatically send General Interrogation (GI) after STARTDT handshake"
+      }
+    },
+    "advanced": {
+      "maxUnack": {
+        "type": "number",
+        "default": 10,
+        "min": 1,
+        "max": 32767,
+        "description": "Maximum unacknowledged I-frames before sending S-frame (k parameter)"
+      },
+      "t1Ms": {
+        "type": "number",
+        "default": 15000,
+        "min": 1000,
+        "max": 255000,
+        "description": "APDU timeout t1 in milliseconds. Max time to wait for an APDU response."
+      },
+      "t2Ms": {
+        "type": "number",
+        "default": 10000,
+        "min": 1000,
+        "max": 255000,
+        "description": "S-frame timeout t2 in milliseconds. Max time before sending S-frame ack."
+      },
+      "t3Ms": {
+        "type": "number",
+        "default": 20000,
+        "min": 1000,
+        "max": 1800000,
+        "description": "Test frame timeout t3 in milliseconds. Idle time before sending TESTFR."
+      }
+    }
+  },
+  "connectionSummary": "Connects to an IEC 104 server via TCP transport. Performs STARTDT handshake to activate the data transfer. Supports General Interrogation (GI), Counter Interrogation, Clock Synchronization, and command sending (single/double/setpoint). Full ASDU parsing for all standard Type Identifications including single-point, double-point, measured values, and time-tagged variants.",
+  "connectionSteps": [
+    "Set the target IEC 104 server host and TCP port (default: 2404).",
+    "Engine sends STARTDT act U-frame and waits for STARTDT con from the server.",
+    "With the data transfer activated, General Interrogation, Counter Interrogation, and command operations are available via capability actions.",
+    "All I-format frames are parsed as ASDUs with full Type Identification decoding.",
+    "On disconnect, the session is cleanly torn down."
+  ],
+  "readBehavior": "Read waits for the next received I-format frame and returns the raw APDU bytes. The frame is automatically decoded with ASDU parsing for display.",
+  "writeBehavior": "Write sends raw bytes as an I-format frame with proper sequence number management."
+}

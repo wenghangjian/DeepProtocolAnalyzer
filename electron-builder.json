@@ -1,0 +1,27 @@
+{
+  "appId": "com.industrialprotocolstudio.app",
+  "productName": "Industrial Protocol Studio",
+  "directories": {
+    "output": "dist"
+  },
+  "files": ["dist/**/*"],
+  "win": {
+    "target": ["nsis", "portable"],
+    "signingHashAlgorithms": ["sha256"],
+    "sign": "./scripts/sign.js",
+    "certificateSubjectName": "",
+    "certificateFile": "",
+    "rfc3161TimeStampServer": "http://timestamp.digicert.com"
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "perMachine": false,
+    "installerIcon": "",
+    "uninstallerIcon": "",
+    "installerHeaderIcon": "",
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Deep Protocol Analyzer"
+  }
+}

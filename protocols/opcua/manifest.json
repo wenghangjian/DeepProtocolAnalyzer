@@ -1,0 +1,105 @@
+{
+  "protocolId": "opcua",
+  "protocolName": "OPC UA Binary",
+  "version": "1.0.0",
+  "supportedTransports": ["tcp"],
+  "capabilities": [
+    "connect",
+    "read",
+    "write",
+    "poll",
+    "browse",
+    "browseNext",
+    "createSubscription",
+    "createMonitoredItems",
+    "publish"
+  ],
+  "category": "automation",
+  "defaultTransport": "tcp",
+  "defaultConfig": {
+    "host": "127.0.0.1",
+    "port": 4840
+  },
+  "configSchema": {
+    "connection": {
+      "host": {
+        "type": "string",
+        "default": "127.0.0.1",
+        "description": "OPC UA server hostname or IP address",
+        "required": true
+      },
+      "port": {
+        "type": "number",
+        "default": 4840,
+        "min": 1,
+        "max": 65535,
+        "description": "OPC UA server TCP port (default 4840)",
+        "required": true
+      },
+      "connectTimeoutMs": {
+        "type": "number",
+        "default": 5000,
+        "min": 1000,
+        "max": 60000,
+        "description": "Connection timeout in milliseconds"
+      },
+      "endpointUrl": {
+        "type": "string",
+        "default": "",
+        "description": "Full OPC UA endpoint URL (e.g. opc.tcp://host:4840). If empty, constructed from host:port."
+      }
+    },
+    "protocol": {
+      "readTimeoutMs": {
+        "type": "number",
+        "default": 5000,
+        "min": 1000,
+        "max": 60000,
+        "description": "Read/response timeout in milliseconds"
+      },
+      "securityPolicy": {
+        "type": "string",
+        "default": "http://opcfoundation.org/UA/SecurityPolicy#None",
+        "enum": [
+          "http://opcfoundation.org/UA/SecurityPolicy#None",
+          "http://opcfoundation.org/UA/SecurityPolicy#Basic128Rsa15",
+          "http://opcfoundation.org/UA/SecurityPolicy#Basic256",
+          "http://opcfoundation.org/UA/SecurityPolicy#Basic256Sha256",
+          "http://opcfoundation.org/UA/SecurityPolicy#Aes128_Sha256_RsaOaep",
+          "http://opcfoundation.org/UA/SecurityPolicy#Aes256_Sha256_RsaPss"
+        ],
+        "description": "Security policy URI for the secure channel"
+      },
+      "securityMode": {
+        "type": "string",
+        "default": "None",
+        "enum": ["None", "Sign", "SignAndEncrypt"],
+        "description": "Message security mode for the secure channel"
+      },
+      "sessionTimeoutMs": {
+        "type": "number",
+        "default": 600000,
+        "min": 10000,
+        "max": 3600000,
+        "description": "Requested session timeout in milliseconds"
+      },
+      "requestedPublishingInterval": {
+        "type": "number",
+        "default": 1000,
+        "min": 100,
+        "max": 3600000,
+        "description": "Requested publishing interval for subscriptions in milliseconds"
+      }
+    }
+  },
+  "connectionSummary": "Connects to an OPC UA server via opc.tcp:// transport. Performs HEL/ACK handshake followed by OpenSecureChannel (OPN) with SecurityPolicy#None. Supports Browse, Read, Write, CreateSubscription, CreateMonitoredItems, and Publish services for full address space exploration and data access.",
+  "connectionSteps": [
+    "Set the target OPC UA server host and TCP port (default: 4840).",
+    "Engine sends HEL (Hello) message and waits for ACK (Acknowledge) from the server.",
+    "Engine sends OPN (Open Secure Channel) request with SecurityPolicy#None and receives a SecureChannelId and TokenId.",
+    "With the secure channel established, Browse/Read/Write/Subscribe operations are available via capability actions.",
+    "On disconnect, a CLO (Close Secure Channel) message is sent for clean teardown."
+  ],
+  "readBehavior": "Read sends an OPC UA ReadRequest for the Value attribute (attributeId=13) of the specified NodeId(s). The address field accepts comma-separated NodeId strings (e.g. 'i=2258' or 'ns=2;s=MyNode'). Response contains the DataValue with value, statusCode, and timestamps.",
+  "writeBehavior": "Write sends an OPC UA WriteRequest for the Value attribute. The address field accepts comma-separated NodeId strings. The data field contains raw bytes interpreted as Int32 (4 bytes), Int16 (2 bytes), or Boolean (1 byte)."
+}

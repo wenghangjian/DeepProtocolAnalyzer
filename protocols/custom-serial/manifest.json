@@ -1,0 +1,93 @@
+{
+  "protocolId": "custom-serial",
+  "protocolName": "Custom Serial",
+  "version": "1.0.0",
+  "supportedTransports": ["serial"],
+  "capabilities": ["connect", "read", "write", "poll"],
+  "category": "custom",
+  "defaultTransport": "serial",
+  "defaultConfig": {
+    "path": "COM1",
+    "baudRate": 9600,
+    "dataBits": 8,
+    "stopBits": 1,
+    "parity": "none",
+    "readTimeoutMs": 5000,
+    "responseTimeoutMs": 3000,
+    "defaultSendMode": "hex",
+    "interFrameTimeoutMs": 50
+  },
+  "configSchema": {
+    "connection": {
+      "path": {
+        "type": "string",
+        "default": "COM1",
+        "description": "Serial port path (e.g. COM1, /dev/ttyUSB0)",
+        "required": true
+      },
+      "baudRate": {
+        "type": "number",
+        "default": 9600,
+        "enum": [300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200],
+        "description": "Serial baud rate",
+        "required": true
+      },
+      "dataBits": {
+        "type": "number",
+        "default": 8,
+        "enum": [7, 8],
+        "description": "Number of data bits per frame"
+      },
+      "stopBits": {
+        "type": "number",
+        "default": 1,
+        "enum": [1, 2],
+        "description": "Number of stop bits per frame"
+      },
+      "parity": {
+        "type": "string",
+        "default": "none",
+        "enum": ["none", "even", "odd"],
+        "description": "Parity checking mode"
+      }
+    },
+    "protocol": {
+      "readTimeoutMs": {
+        "type": "number",
+        "default": 5000,
+        "min": 100,
+        "max": 60000,
+        "description": "Read timeout in milliseconds"
+      },
+      "responseTimeoutMs": {
+        "type": "number",
+        "default": 3000,
+        "min": 100,
+        "max": 30000,
+        "description": "Response timeout for read/write operations in milliseconds"
+      },
+      "defaultSendMode": {
+        "type": "string",
+        "enum": ["hex", "ascii", "raw"],
+        "default": "hex",
+        "description": "Default send mode for frame encoding (hex = hex string, ascii = ASCII text, raw = raw bytes)"
+      },
+      "interFrameTimeoutMs": {
+        "type": "number",
+        "default": 50,
+        "min": 1,
+        "max": 1000,
+        "description": "Inter-frame timeout in milliseconds for detecting frame boundaries on serial"
+      }
+    }
+  },
+  "connectionSummary": "Raw serial message tunnel for private serial protocols and lab bring-up. Supports HEX/ASCII/raw send modes, timed auto-send, CRC-16/LRC calculation, and frame builder utilities.",
+  "connectionSteps": [
+    "Choose the serial port from the live host resource list.",
+    "Select a common baud rate from the dropdown or keep the default value.",
+    "Configure data bits, stop bits, and parity as needed.",
+    "Choose the default send mode (hex, ascii, or raw).",
+    "After connection, send HEX bytes, ASCII strings, or raw data and wait for the response frame."
+  ],
+  "readBehavior": "Read sends the request frame using the configured send mode and waits for the next serial response with a configurable timeout. Write forwards the encoded byte sequence unchanged. Supports CRC-16/Modbus and LRC appending for frame integrity."
+}

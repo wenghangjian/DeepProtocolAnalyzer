@@ -1,0 +1,91 @@
+{
+  "protocolId": "modbus-tcp",
+  "protocolName": "Modbus TCP",
+  "version": "1.1.0",
+  "supportedTransports": ["tcp"],
+  "capabilities": [
+    "connect",
+    "read",
+    "write",
+    "poll",
+    "read-coils",
+    "read-discrete-inputs",
+    "read-holding-registers",
+    "read-input-registers",
+    "write-single-coil",
+    "write-single-register",
+    "write-multiple-coils",
+    "write-multiple-registers"
+  ],
+  "category": "modbus",
+  "defaultTransport": "tcp",
+  "defaultConfig": {
+    "host": "127.0.0.1",
+    "port": 502,
+    "unitId": 1
+  },
+  "configSchema": {
+    "connection": {
+      "host": {
+        "type": "string",
+        "default": "127.0.0.1",
+        "description": "Modbus TCP server hostname or IP address",
+        "required": true
+      },
+      "port": {
+        "type": "number",
+        "default": 502,
+        "min": 1,
+        "max": 65535,
+        "description": "TCP port number (standard Modbus port is 502)",
+        "required": true
+      },
+      "connectTimeoutMs": {
+        "type": "number",
+        "default": 5000,
+        "min": 1000,
+        "max": 60000,
+        "description": "TCP connection timeout in milliseconds"
+      }
+    },
+    "protocol": {
+      "unitId": {
+        "type": "number",
+        "default": 1,
+        "min": 0,
+        "max": 255,
+        "description": "Modbus unit/slave ID (0 = broadcast, 1-247 = specific device)"
+      },
+      "readTimeoutMs": {
+        "type": "number",
+        "default": 3000,
+        "min": 100,
+        "max": 30000,
+        "description": "Read operation response timeout in milliseconds"
+      },
+      "writeTimeoutMs": {
+        "type": "number",
+        "default": 3000,
+        "min": 100,
+        "max": 30000,
+        "description": "Write operation response timeout in milliseconds"
+      }
+    },
+    "advanced": {
+      "maxRegistersPerRead": {
+        "type": "number",
+        "default": 125,
+        "min": 1,
+        "max": 125,
+        "description": "Maximum number of registers per read request (Modbus limit is 125)"
+      }
+    }
+  },
+  "connectionSummary": "Standard Modbus TCP client workflow for PLC and RTU devices.",
+  "connectionSteps": [
+    "Set the target device IP address and TCP port. The common default port is 502.",
+    "If the device exposes a unit address, fill in the Unit ID before connecting.",
+    "After the session is connected, read and write registers with function codes such as FC01-FC04 for reads and FC05/FC06/FC15/FC16 for writes."
+  ],
+  "readBehavior": "Read operations send a Modbus request frame and return the payload bytes from the device response. Supports coils (FC01), discrete inputs (FC02), holding registers (FC03), and input registers (FC04)."
+}
