@@ -126,16 +126,19 @@ function createWindow() {
     }
   });
 
-  win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-    callback({
-      responseHeaders: {
-        ...details.responseHeaders,
-        "Content-Security-Policy": [
-          "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; font-src 'self';"
-        ]
-      }
+  // Only enforce strict CSP in production; dev mode needs relaxed CSP for Vite HMR
+  if (!isDevelopment) {
+    win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          "Content-Security-Policy": [
+            "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; font-src 'self';"
+          ]
+        }
+      });
     });
-  });
+  }
 
   const devServerUrl = getDevServerUrl();
   if (devServerUrl) {
