@@ -79,7 +79,7 @@ export default function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/45 backdrop-blur-sm"
+      className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-950/60 backdrop-blur-sm"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -88,18 +88,18 @@ export default function Modal({
       <div
         ref={panelRef}
         tabIndex={-1}
-        className="flex flex-col rounded-2xl bg-white shadow-2xl overflow-hidden outline-none"
+        className="flex flex-col rounded-2xl bg-slate-800 border border-slate-700/50 shadow-2xl overflow-hidden outline-none"
         style={{ width: "90vw", maxWidth, maxHeight: "85vh" }}
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleTrapFocus}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-          <h2 className="m-0 text-lg font-bold tracking-tight text-slate-900">{title}</h2>
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-700/50">
+          <h2 className="m-0 text-lg font-bold tracking-tight text-slate-100">{title}</h2>
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-slate-500 hover:bg-gray-50 transition-colors cursor-pointer"
+            className="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-600 bg-slate-700 text-slate-400 hover:bg-slate-600 hover:text-slate-200 transition-colors cursor-pointer"
             aria-label="Close dialog"
           >
             ✕
@@ -111,7 +111,7 @@ export default function Modal({
 
         {/* Footer */}
         {footer && (
-          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
+          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-700/50">
             {footer}
           </div>
         )}

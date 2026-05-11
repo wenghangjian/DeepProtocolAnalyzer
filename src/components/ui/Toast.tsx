@@ -29,27 +29,27 @@ export function useToast(): ToastContextValue {
 
 const variantStyles: Record<ToastVariant, { bg: string; border: string; text: string; icon: string }> = {
   success: {
-    bg: "bg-emerald-50",
-    border: "border-emerald-200",
-    text: "text-emerald-800",
+    bg: "bg-emerald-900/80",
+    border: "border-emerald-600/40",
+    text: "text-emerald-200",
     icon: "✓",
   },
   error: {
-    bg: "bg-red-50",
-    border: "border-red-200",
-    text: "text-red-800",
+    bg: "bg-red-900/80",
+    border: "border-red-600/40",
+    text: "text-red-200",
     icon: "✕",
   },
   warning: {
-    bg: "bg-amber-50",
-    border: "border-amber-200",
-    text: "text-amber-800",
+    bg: "bg-amber-900/80",
+    border: "border-amber-600/40",
+    text: "text-amber-200",
     icon: "⚠",
   },
   info: {
-    bg: "bg-cyan-50",
-    border: "border-cyan-200",
-    text: "text-cyan-800",
+    bg: "bg-cyan-900/80",
+    border: "border-cyan-600/40",
+    text: "text-cyan-200",
     icon: "ℹ",
   },
 };
@@ -74,7 +74,7 @@ function ToastMessage({ item, onDismiss }: { item: ToastItem; onDismiss: (id: st
       aria-live="assertive"
       className={[
         "flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-lg min-w-[280px] max-w-[420px]",
-        "transition-all duration-300 ease-in-out",
+        "transition-all duration-300 ease-in-out backdrop-blur-sm",
         styles.bg,
         styles.border,
         styles.text,
@@ -91,7 +91,7 @@ function ToastMessage({ item, onDismiss }: { item: ToastItem; onDismiss: (id: st
           setExiting(true);
           setTimeout(() => onDismiss(item.id), 300);
         }}
-        className="shrink-0 w-6 h-6 flex items-center justify-center rounded-md hover:bg-black/5 transition-colors cursor-pointer text-xs"
+        className="shrink-0 w-6 h-6 flex items-center justify-center rounded-md hover:bg-white/10 transition-colors cursor-pointer text-xs"
         aria-label="Dismiss notification"
       >
         ✕

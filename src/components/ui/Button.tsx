@@ -19,13 +19,13 @@ const sizeClasses: Record<ButtonSize, string> = {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-gradient-to-br from-blue-600 to-teal-700 text-white hover:from-blue-700 hover:to-teal-800 focus-visible:ring-blue-500",
+    "bg-gradient-to-br from-blue-600 to-cyan-600 text-white hover:from-blue-500 hover:to-cyan-500 focus-visible:ring-blue-500",
   secondary:
-    "bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 focus-visible:ring-blue-400",
+    "bg-slate-700 text-slate-200 hover:bg-slate-600 border border-slate-600 focus-visible:ring-blue-400",
   danger:
-    "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500",
+    "bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-500",
   ghost:
-    "bg-white text-slate-700 border border-gray-200 hover:bg-gray-50 focus-visible:ring-gray-400",
+    "bg-transparent text-slate-300 border border-slate-600 hover:bg-slate-700 hover:text-slate-100 focus-visible:ring-gray-400",
 };
 
 const spinnerStyle: React.CSSProperties = {
@@ -59,7 +59,7 @@ export default function Button({
         className={[
           "inline-flex items-center justify-center gap-1.5 rounded-xl font-bold cursor-pointer",
           "transition-all duration-150 ease-in-out",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900",
           sizeClasses[size],
           variantClasses[variant],
           isDisabled ? "opacity-50 cursor-not-allowed pointer-events-none" : "",

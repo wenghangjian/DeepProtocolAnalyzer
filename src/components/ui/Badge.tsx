@@ -11,11 +11,11 @@ interface BadgeProps {
 }
 
 const variantStyles: Record<BadgeVariant, { bg: string; text: string; dot: string }> = {
-  success: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
-  warning: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500" },
-  danger: { bg: "bg-red-50", text: "text-red-700", dot: "bg-red-500" },
-  info: { bg: "bg-cyan-50", text: "text-cyan-700", dot: "bg-cyan-500" },
-  neutral: { bg: "bg-gray-100", text: "text-gray-600", dot: "bg-gray-400" },
+  success: { bg: "bg-emerald-900/60", text: "text-emerald-300", dot: "bg-emerald-400" },
+  warning: { bg: "bg-amber-900/60", text: "text-amber-300", dot: "bg-amber-400" },
+  danger: { bg: "bg-red-900/60", text: "text-red-300", dot: "bg-red-400" },
+  info: { bg: "bg-cyan-900/60", text: "text-cyan-300", dot: "bg-cyan-400" },
+  neutral: { bg: "bg-slate-700/60", text: "text-slate-300", dot: "bg-slate-400" },
 };
 
 export default function Badge({

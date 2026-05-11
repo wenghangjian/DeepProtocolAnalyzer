@@ -64,7 +64,7 @@ export default function Tabs({ tabs, activeId, onChange, className = "" }: TabsP
       {/* Tab list */}
       <div
         role="tablist"
-        className="flex gap-1 border-b border-gray-200 mb-3"
+        className="flex gap-1 border-b border-slate-700/50 mb-3"
         onKeyDown={handleKeyDown}
         aria-orientation="horizontal"
       >
@@ -87,8 +87,8 @@ export default function Tabs({ tabs, activeId, onChange, className = "" }: TabsP
                 "px-3 py-2 text-sm font-semibold border-b-2 -mb-px transition-colors cursor-pointer",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:ring-offset-1 rounded-t",
                 isActive
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300",
+                  ? "border-blue-500 text-blue-400"
+                  : "border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-500",
               ].join(" ")}
             >
               {tab.label}

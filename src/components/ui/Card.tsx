@@ -24,7 +24,7 @@ export default function Card({
   return (
     <div
       className={[
-        "rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden",
+        "rounded-xl border border-slate-700/50 bg-slate-800 shadow-lg overflow-hidden",
         className,
       ]
         .filter(Boolean)
@@ -33,9 +33,9 @@ export default function Card({
       aria-label={ariaLabel}
     >
       {(title || actions) && (
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700/50">
           {title && (
-            <h3 className="m-0 text-sm font-bold text-slate-800 tracking-tight">{title}</h3>
+            <h3 className="m-0 text-sm font-bold text-slate-100 tracking-tight">{title}</h3>
           )}
           {actions && <div className="flex items-center gap-2">{actions}</div>}
         </div>
@@ -44,7 +44,7 @@ export default function Card({
       <div className="p-4">{children}</div>
 
       {footer && (
-        <div className="px-4 py-3 border-t border-gray-100 bg-gray-50/50">{footer}</div>
+        <div className="px-4 py-3 border-t border-slate-700/50 bg-slate-800/50">{footer}</div>
       )}
     </div>
   );
