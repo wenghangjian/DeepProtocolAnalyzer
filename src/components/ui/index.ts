@@ -35,8 +35,3 @@ export { Separator } from "./separator";
 
 // Kept custom (domain-specific)
 export { default as Badge } from "./Badge";
-export { ToastProvider, ToastContainer, useToast } from "./Toast";
-export type { ToastItem, ToastVariant } from "./Toast";
-
-// Kept for backward compatibility during migration (Phase 3)
-export { default as Modal } from "./Modal";
