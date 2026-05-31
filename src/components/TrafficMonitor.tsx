@@ -29,16 +29,16 @@ const panelStyle: React.CSSProperties = {
   flexDirection: "column",
   borderRadius: 16,
   overflow: "hidden",
-  border: "1px solid #d7e3f4",
-  background: "#f8fbff"
+  border: "1px solid rgba(51, 65, 85, 0.5)",
+  background: "#1e293b"
 };
 
 const toolbarStyle: React.CSSProperties = {
   display: "flex",
   gap: 8,
   padding: "8px 12px",
-  borderBottom: "1px solid #d7e3f4",
-  background: "#ffffff",
+  borderBottom: "1px solid rgba(51, 65, 85, 0.5)",
+  background: "#0f172a",
   alignItems: "center",
   flexWrap: "wrap"
 };
@@ -47,9 +47,9 @@ const btnBase: React.CSSProperties = {
   height: 28,
   padding: "0 10px",
   borderRadius: 999,
-  border: "1px solid #d7e3f4",
-  background: "#ffffff",
-  color: "#475569",
+  border: "1px solid rgba(51, 65, 85, 0.5)",
+  background: "#0f172a",
+  color: "#94a3b8",
   fontWeight: 600,
   fontSize: 11,
   cursor: "pointer",
@@ -58,16 +58,18 @@ const btnBase: React.CSSProperties = {
 
 const btnActive: React.CSSProperties = {
   ...btnBase,
-  border: "1px solid #93c5fd",
-  background: "#e8f0ff",
-  color: "#1d4ed8"
+  border: "1px solid #3b82f6",
+  background: "rgba(59, 130, 246, 0.15)",
+  color: "#93c5fd"
 };
 
 const inputStyle: React.CSSProperties = {
   height: 28,
   padding: "0 8px",
   borderRadius: 6,
-  border: "1px solid #d7e3f4",
+  border: "1px solid rgba(51, 65, 85, 0.5)",
+  background: "#0f172a",
+  color: "#e2e8f0",
   fontSize: 11,
   fontFamily: "Consolas, 'SFMono-Regular', monospace",
   outline: "none",
@@ -77,7 +79,8 @@ const inputStyle: React.CSSProperties = {
 const selectStyle: React.CSSProperties = {
   ...inputStyle,
   cursor: "pointer",
-  minWidth: 100
+  minWidth: 100,
+  appearance: "none" as const
 };
 
 const badgeStyle: React.CSSProperties = {
@@ -97,7 +100,7 @@ const badgeStyle: React.CSSProperties = {
 const separatorStyle: React.CSSProperties = {
   width: 1,
   height: 20,
-  background: "#d7e3f4",
+  background: "rgba(51, 65, 85, 0.5)",
   margin: "0 4px"
 };
 
@@ -108,9 +111,9 @@ const copyBtnStyle: React.CSSProperties = {
   height: 22,
   padding: "0 6px",
   borderRadius: 4,
-  border: "1px solid #d7e3f4",
-  background: "#ffffff",
-  color: "#475569",
+  border: "1px solid rgba(51, 65, 85, 0.5)",
+  background: "#1e293b",
+  color: "#94a3b8",
   fontSize: 10,
   fontWeight: 600,
   cursor: "pointer",
@@ -605,10 +608,10 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
               padding: "6px 12px",
               paddingRight: 60,
               borderLeft: `4px solid ${accent}`,
-              background: item.isError ? "#fff1f2" : index % 2 === 0 ? "#ffffff" : "#f8fbff",
+              background: item.isError ? "rgba(239, 68, 68, 0.15)" : index % 2 === 0 ? "#1e293b" : "#0f172a",
               fontFamily: "Consolas, 'SFMono-Regular', monospace",
               fontSize: 11,
-              color: "#1e293b",
+              color: "#e2e8f0",
               position: "relative",
               lineHeight: "22px"
             }}
@@ -648,10 +651,10 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
               padding: "6px 12px",
               paddingRight: 60,
               borderLeft: `4px solid ${accent}`,
-              background: item.isError ? "#fff1f2" : index % 2 === 0 ? "#ffffff" : "#f8fbff",
+              background: item.isError ? "rgba(239, 68, 68, 0.15)" : index % 2 === 0 ? "#1e293b" : "#0f172a",
               fontFamily: "Consolas, 'SFMono-Regular', monospace",
               fontSize: 11,
-              color: "#1e293b",
+              color: "#e2e8f0",
               position: "relative",
               lineHeight: "22px",
               overflow: "hidden",
@@ -675,8 +678,8 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
               const bin = v.toString(2).padStart(8, "0");
               return (
                 <span key={i} style={{ marginRight: 4 }}>
-                  <span style={{ color: "#6366f1" }}>{bin.slice(0, 4)}</span>
-                  <span style={{ color: "#0891b2" }}>{bin.slice(4)}</span>
+                  <span style={{ color: "#818cf8" }}>{bin.slice(0, 4)}</span>
+                  <span style={{ color: "#22d3ee" }}>{bin.slice(4)}</span>
                 </span>
               );
             })}
@@ -714,10 +717,10 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
               padding: "6px 12px",
               paddingRight: 60,
               borderLeft: `4px solid ${accent}`,
-              background: item.isError ? "#fff1f2" : index % 2 === 0 ? "#ffffff" : "#f8fbff",
+              background: item.isError ? "rgba(239, 68, 68, 0.15)" : index % 2 === 0 ? "#1e293b" : "#0f172a",
               fontFamily: "Consolas, 'SFMono-Regular', monospace",
               fontSize: 11,
-              color: "#1e293b",
+              color: "#e2e8f0",
               position: "relative",
               lineHeight: "18px"
             }}
@@ -743,11 +746,11 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
                 {/* Hex bytes */}
                 <span style={{ minWidth: ROW_SIZE * 24 }}>
                   {row.hex.map((h, hi) => (
-                    <span key={hi} style={{ marginRight: 4, color: "#475569" }}>{h}</span>
+                    <span key={hi} style={{ marginRight: 4, color: "#94a3b8" }}>{h}</span>
                   ))}
                   {/* Pad if last row is short */}
                   {row.hex.length < ROW_SIZE && (
-                    <span style={{ color: "#cbd5e1" }}>
+                    <span style={{ color: "rgba(51, 65, 85, 0.5)" }}>
                       {"   ".repeat(ROW_SIZE - row.hex.length)}
                     </span>
                   )}
@@ -758,7 +761,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
                     <span
                       key={ci}
                       style={{
-                        color: ch === "." ? "#cbd5e1" : "#0f766e",
+                        color: ch === "." ? "rgba(51, 65, 85, 0.5)" : "#2dd4bf",
                         fontWeight: ch === "." ? 400 : 600
                       }}
                     >
@@ -790,10 +793,10 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
             padding: "6px 12px",
             paddingRight: 60,
             borderLeft: `4px solid ${accent}`,
-            background: item.isError ? "#fff1f2" : index % 2 === 0 ? "#ffffff" : "#f8fbff",
+            background: item.isError ? "rgba(239, 68, 68, 0.15)" : index % 2 === 0 ? "#1e293b" : "#0f172a",
             fontFamily: "Consolas, 'SFMono-Regular', monospace",
             fontSize: 11,
-            color: "#1e293b",
+            color: "#e2e8f0",
             position: "relative",
             lineHeight: "18px"
           }}
@@ -813,8 +816,8 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
           <div style={{ marginTop: 2 }}>
             {fields.map((field, fi) => (
               <span key={fi} style={{ marginRight: 12 }}>
-                <span style={{ color: "#6366f1", fontWeight: 600 }}>{field.label}:</span>{" "}
-                <span style={{ color: "#0f172a" }}>{field.value}</span>
+                <span style={{ color: "#818cf8", fontWeight: 600 }}>{field.label}:</span>{" "}
+                <span style={{ color: "#e2e8f0" }}>{field.value}</span>
               </span>
             ))}
           </div>
@@ -931,7 +934,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
           aria-pressed={paused}
           onClick={() => setPaused((v) => !v)}
           style={{
-            ...(paused ? { ...btnBase, background: "#fef3c7", borderColor: "#f59e0b", color: "#92400e" } : btnBase),
+            ...(paused ? { ...btnBase, background: "rgba(245, 158, 11, 0.15)", borderColor: "#f59e0b", color: "#fbbf24" } : btnBase),
             position: "relative"
           }}
         >
@@ -959,10 +962,10 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
                 top: "100%",
                 right: 0,
                 marginTop: 4,
-                background: "#ffffff",
-                border: "1px solid #d7e3f4",
+                background: "#1e293b",
+                border: "1px solid rgba(51, 65, 85, 0.5)",
                 borderRadius: 8,
-                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
                 zIndex: 10,
                 minWidth: 160,
                 overflow: "hidden"
@@ -981,9 +984,9 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
                   textAlign: "left",
                   fontSize: 12,
                   cursor: "pointer",
-                  color: "#1e293b"
+                  color: "#e2e8f0"
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#f1f5f9")}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "#334155")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
                 📄 Export as .txt (hex dump)
@@ -1001,9 +1004,9 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
                   textAlign: "left",
                   fontSize: 12,
                   cursor: "pointer",
-                  color: "#1e293b"
+                  color: "#e2e8f0"
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#f1f5f9")}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "#334155")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
                 💾 Export as .bin (raw bytes)

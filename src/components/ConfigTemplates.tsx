@@ -28,7 +28,7 @@ const panelStyles = `
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(15, 23, 42, 0.45);
+    background: rgba(0, 0, 0, 0.55);
     backdrop-filter: blur(6px);
   }
   .template-panel {
@@ -37,8 +37,9 @@ const panelStyles = `
     display: flex;
     flex-direction: column;
     border-radius: 22px;
-    background: #ffffff;
-    box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18);
+    background: #1e293b;
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
     overflow: hidden;
   }
   .template-header {
@@ -46,13 +47,14 @@ const panelStyles = `
     justify-content: space-between;
     align-items: center;
     padding: 20px 24px;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    border-bottom: 1px solid rgba(51, 65, 85, 0.5);
   }
   .template-header h2 {
     margin: 0;
     font-size: 18px;
     font-weight: 700;
     letter-spacing: -0.02em;
+    color: #e2e8f0;
   }
   .template-body {
     flex: 1;
@@ -70,22 +72,25 @@ const panelStyles = `
     min-width: 200px;
     padding: 10px 14px;
     border-radius: 12px;
-    border: 1px solid #d7e3f4;
-    background: #fff;
-    color: #162033;
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    background: #0f172a;
+    color: #e2e8f0;
     font-size: 13px;
     outline: none;
   }
   .template-search:focus {
     border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+  .template-search::placeholder {
+    color: #64748b;
   }
   .template-filter {
     padding: 10px 14px;
     border-radius: 12px;
-    border: 1px solid #d7e3f4;
-    background: #fff;
-    color: #162033;
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    background: #0f172a;
+    color: #e2e8f0;
     font-size: 13px;
     outline: none;
     min-width: 140px;
@@ -101,13 +106,12 @@ const panelStyles = `
     align-items: center;
     padding: 14px 16px;
     border-radius: 14px;
-    border: 1px solid rgba(191, 219, 254, 0.8);
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-    transition: transform 120ms ease, box-shadow 120ms ease;
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    background: #0f172a;
+    transition: border-color 150ms ease;
   }
   .template-card:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.1);
+    border-color: rgba(59, 130, 246, 0.4);
   }
   .template-info {
     flex: 1;
@@ -117,7 +121,7 @@ const panelStyles = `
     margin: 0 0 4px;
     font-size: 14px;
     font-weight: 700;
-    color: #162033;
+    color: #e2e8f0;
   }
   .template-meta {
     display: flex;
@@ -133,12 +137,12 @@ const panelStyles = `
     border-radius: 999px;
     font-size: 11px;
     font-weight: 600;
-    background: #eff6ff;
-    color: #1d4ed8;
+    background: rgba(59, 130, 246, 0.15);
+    color: #93c5fd;
   }
   .template-date {
     font-size: 11px;
-    color: #94a3b8;
+    color: #64748b;
   }
   .template-actions {
     display: flex;
@@ -164,12 +168,12 @@ const panelStyles = `
     color: #fff;
   }
   .template-btn.ghost {
-    background: #f1f5f9;
-    color: #475569;
+    background: rgba(51, 65, 85, 0.5);
+    color: #94a3b8;
   }
   .template-btn.danger {
-    background: #fef2f2;
-    color: #b91c1c;
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
   }
   .template-btn:disabled {
     cursor: not-allowed;
@@ -177,7 +181,7 @@ const panelStyles = `
   }
   .template-empty {
     padding: 32px 16px;
-    border: 1px dashed #cbd5e1;
+    border: 1px dashed rgba(51, 65, 85, 0.5);
     border-radius: 14px;
     color: #64748b;
     text-align: center;
@@ -188,7 +192,7 @@ const panelStyles = `
     justify-content: space-between;
     align-items: center;
     padding: 16px 24px;
-    border-top: 1px solid rgba(148, 163, 184, 0.18);
+    border-top: 1px solid rgba(51, 65, 85, 0.5);
     gap: 10px;
   }
   .template-footer-actions {
@@ -204,18 +208,18 @@ const panelStyles = `
     border-radius: 14px;
     font-size: 13px;
     font-weight: 600;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.14);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
     animation: slideIn 200ms ease;
   }
   .template-notification.success {
-    background: #ecfdf3;
-    color: #15803d;
-    border: 1px solid rgba(22, 163, 74, 0.2);
+    background: rgba(22, 163, 74, 0.15);
+    color: #4ade80;
+    border: 1px solid rgba(22, 163, 74, 0.3);
   }
   .template-notification.error {
-    background: #fef2f2;
-    color: #b91c1c;
-    border: 1px solid rgba(185, 28, 28, 0.2);
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
   }
   .template-save-row {
     display: flex;
@@ -224,8 +228,8 @@ const panelStyles = `
     margin-bottom: 16px;
     padding: 14px;
     border-radius: 14px;
-    background: #f8fafc;
-    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: #0f172a;
+    border: 1px solid rgba(51, 65, 85, 0.5);
   }
   .template-save-field {
     flex: 1;
@@ -236,20 +240,23 @@ const panelStyles = `
   .template-save-field span {
     font-size: 11px;
     font-weight: 600;
-    color: #475569;
+    color: #94a3b8;
   }
   .template-save-field input {
     padding: 8px 12px;
     border-radius: 10px;
-    border: 1px solid #d7e3f4;
-    background: #fff;
-    color: #162033;
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    background: #1e293b;
+    color: #e2e8f0;
     font-size: 13px;
     outline: none;
   }
   .template-save-field input:focus {
     border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+  .template-save-field input::placeholder {
+    color: #64748b;
   }
   .template-confirm-overlay {
     position: absolute;
@@ -257,22 +264,23 @@ const panelStyles = `
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(15, 23, 42, 0.3);
+    background: rgba(0, 0, 0, 0.5);
     border-radius: 14px;
     z-index: 10;
   }
   .template-confirm-box {
     padding: 16px;
     border-radius: 12px;
-    background: #fff;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.14);
+    background: #1e293b;
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
     text-align: center;
     max-width: 260px;
   }
   .template-confirm-box p {
     margin: 0 0 12px;
     font-size: 13px;
-    color: #334155;
+    color: #e2e8f0;
   }
   .template-confirm-actions {
     display: flex;
@@ -575,7 +583,7 @@ export default function ConfigTemplates({ isOpen, onClose, onLoadTemplate, curre
           </div>
 
           <div className="template-footer">
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>
+            <span style={{ fontSize: 12, color: "#64748b" }}>
               {filteredTemplates.length} of {templates.length} template(s)
             </span>
             <div className="template-footer-actions">

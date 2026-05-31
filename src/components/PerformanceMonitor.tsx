@@ -29,7 +29,7 @@ const panelStyles = `
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(15, 23, 42, 0.45);
+    background: rgba(0, 0, 0, 0.55);
     backdrop-filter: blur(6px);
   }
   .perf-panel {
@@ -37,9 +37,9 @@ const panelStyles = `
     max-height: 90vh;
     overflow-y: auto;
     border-radius: 22px;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-    border: 1px solid rgba(148, 163, 184, 0.22);
-    box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18);
+    background: #1e293b;
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
     padding: 28px;
   }
   .perf-header {
@@ -53,13 +53,15 @@ const panelStyles = `
     font-size: 20px;
     font-weight: 700;
     letter-spacing: -0.02em;
+    color: #e2e8f0;
   }
   .perf-close {
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    border: 1px solid #d7e3f4;
-    background: #fff;
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    background: #0f172a;
+    color: #94a3b8;
     cursor: pointer;
     font-size: 18px;
     display: flex;
@@ -67,7 +69,7 @@ const panelStyles = `
     justify-content: center;
   }
   .perf-close:hover {
-    background: #f1f5f9;
+    background: #334155;
   }
   .perf-grid {
     display: grid;
@@ -78,13 +80,14 @@ const panelStyles = `
   .perf-card {
     padding: 16px;
     border-radius: 16px;
-    border: 1px solid rgba(148, 163, 184, 0.18);
-    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    background: #0f172a;
   }
   .perf-card h3 {
     margin: 0 0 12px;
     font-size: 14px;
     font-weight: 700;
+    color: #e2e8f0;
   }
   .perf-metric {
     display: flex;
@@ -94,17 +97,18 @@ const panelStyles = `
     font-size: 13px;
   }
   .perf-metric-label {
-    color: #64748b;
+    color: #94a3b8;
   }
   .perf-metric-value {
     font-weight: 600;
     font-variant-numeric: tabular-nums;
+    color: #e2e8f0;
   }
   .perf-pass {
-    color: #15803d;
+    color: #4ade80;
   }
   .perf-fail {
-    color: #b91c1c;
+    color: #f87171;
   }
   .perf-badge {
     display: inline-flex;
@@ -116,12 +120,12 @@ const panelStyles = `
     font-weight: 600;
   }
   .perf-badge-pass {
-    background: #ecfdf3;
-    color: #15803d;
+    background: rgba(22, 163, 74, 0.15);
+    color: #4ade80;
   }
   .perf-badge-fail {
-    background: #fef2f2;
-    color: #b91c1c;
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
   }
   .perf-actions {
     display: flex;
@@ -146,13 +150,13 @@ const panelStyles = `
     opacity: 0.55;
   }
   .perf-btn.secondary {
-    background: #e8f0ff;
-    color: #1d4ed8;
+    background: rgba(59, 130, 246, 0.15);
+    color: #93c5fd;
   }
   .perf-btn.ghost {
-    background: #ffffff;
-    color: #334155;
-    border: 1px solid #d7e3f4;
+    background: #0f172a;
+    color: #94a3b8;
+    border: 1px solid rgba(51, 65, 85, 0.5);
   }
   .perf-table {
     width: 100%;
@@ -162,7 +166,7 @@ const panelStyles = `
   .perf-table th {
     text-align: left;
     padding: 8px 10px;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid rgba(51, 65, 85, 0.5);
     color: #64748b;
     font-weight: 600;
     font-size: 11px;
@@ -171,18 +175,19 @@ const panelStyles = `
   }
   .perf-table td {
     padding: 8px 10px;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+    color: #e2e8f0;
     font-variant-numeric: tabular-nums;
   }
   .perf-table tr:hover td {
-    background: #f8fafc;
+    background: rgba(51, 65, 85, 0.3);
   }
   .perf-spinner {
     display: inline-block;
     width: 14px;
     height: 14px;
-    border: 2px solid #e2e8f0;
-    border-top-color: #2563eb;
+    border: 2px solid rgba(51, 65, 85, 0.5);
+    border-top-color: #3b82f6;
     border-radius: 50%;
     animation: perf-spin 0.6s linear infinite;
   }
@@ -193,21 +198,23 @@ const panelStyles = `
     width: 80px;
     padding: 6px 8px;
     border-radius: 8px;
-    border: 1px solid #d7e3f4;
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    background: #1e293b;
+    color: #e2e8f0;
     font-size: 12px;
     text-align: center;
   }
   .perf-input:focus {
     outline: none;
     border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
   }
   .perf-param-row {
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 12px;
-    color: #64748b;
+    color: #94a3b8;
   }
   .perf-param-row label {
     min-width: 100px;
@@ -555,7 +562,7 @@ export default function PerformanceMonitor({ isOpen, onClose, onBanner }: Perfor
             </div>
 
             {history.length === 0 ? (
-              <div style={{ padding: "20px 0", textAlign: "center", color: "#94a3b8", fontSize: 13 }} data-testid="perf-history-empty">
+              <div style={{ padding: "20px 0", textAlign: "center", color: "#64748b", fontSize: 13 }} data-testid="perf-history-empty">
                 No benchmark results yet. Run a benchmark above to see results here.
               </div>
             ) : (
@@ -576,8 +583,8 @@ export default function PerformanceMonitor({ isOpen, onClose, onBanner }: Perfor
                         <td>{formatTimestamp(entry.timestamp)}</td>
                         <td>
                           <span className="perf-badge" style={{
-                            background: entry.type === "throughput" ? "#eff6ff" : entry.type === "memory" ? "#fefce8" : "#f0fdf4",
-                            color: entry.type === "throughput" ? "#1d4ed8" : entry.type === "memory" ? "#a16207" : "#15803d"
+                            background: entry.type === "throughput" ? "rgba(59, 130, 246, 0.15)" : entry.type === "memory" ? "rgba(234, 179, 8, 0.15)" : "rgba(22, 163, 74, 0.15)",
+                            color: entry.type === "throughput" ? "#93c5fd" : entry.type === "memory" ? "#fbbf24" : "#4ade80"
                           }}>
                             {entry.type}
                           </span>
