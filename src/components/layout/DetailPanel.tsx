@@ -39,7 +39,7 @@ export default function DetailPanel({ activeManifest, serialPorts, visible }: De
   if (!visible) return null;
 
   return (
-    <aside className="w-[320px] min-w-[320px] border-l border-slate-700/50 bg-slate-900/50 overflow-y-auto flex flex-col">
+    <aside className="w-full h-full border-l border-border bg-background/50 overflow-y-auto flex flex-col">
       {/* Connection Guide */}
       <div className="p-4 border-b border-slate-700/30">
         <h3 className="m-0 mb-2 text-sm font-bold text-slate-200">Connection Guide</h3>

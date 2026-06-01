@@ -46,7 +46,7 @@ export default function Sidebar({
   const selectedManifest = manifests.find((m) => m.protocolId === selectedProtocolId);
 
   return (
-    <aside className="w-[280px] min-w-[280px] border-r border-slate-700/50 bg-slate-900/50 overflow-y-auto flex flex-col">
+    <aside className="w-full h-full border-r border-border bg-background/50 overflow-y-auto flex flex-col">
       {/* Protocol Selector + Config Form */}
       <div className="p-4 border-b border-slate-700/30">
         <SessionCreator

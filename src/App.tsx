@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useRef, useState, useCallback } from "react";
 import type {
   ProtocolManifest,
   SerialPortInfo,
@@ -185,7 +185,26 @@ export default function App() {
   const [templatePanelOpen, setTemplatePanelOpen] = useState(false);
   const [pollManagerOpen, setPollManagerOpen] = useState(false);
   const [performancePanelOpen, setPerformancePanelOpen] = useState(false);
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    const saved = localStorage.getItem("dpa-theme");
+    return saved === "light" ? "light" : "dark";
+  });
   const skipDraftPresetResetRef = useRef(false);
+
+  // Apply theme class to document element
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === "light") {
+      root.classList.add("light");
+    } else {
+      root.classList.remove("light");
+    }
+    localStorage.setItem("dpa-theme", theme);
+  }, [theme]);
+
+  const handleToggleTheme = useCallback(() => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  }, []);
 
   const selectedManifest = manifests.find((manifest) => manifest.protocolId === selectedProtocolId);
   const selectedSession = sessions.find((session) => session.sessionId === selectedSessionId) ?? null;
@@ -590,6 +609,8 @@ export default function App() {
         onInvokeCapability={(action) => void invokeCapabilityAction(action)}
         onTrafficQueryChange={setTrafficQuery}
         onBanner={setBanner}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
       />
       <ConfigTemplates
         isOpen={templatePanelOpen}

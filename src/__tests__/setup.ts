@@ -13,3 +13,9 @@ if (!Element.prototype.releasePointerCapture) {
 if (!Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = () => {};
 }
+
+// Mock Electron IPC APIs used by layout components
+Object.defineProperty(window, "logApi", {
+  value: { query: () => Promise.resolve([]) },
+  writable: true,
+});
