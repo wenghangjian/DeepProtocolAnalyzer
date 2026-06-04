@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Zap, BarChart3, Rocket, ClipboardList, X, CheckCircle, XCircle, ShieldCheck } from "lucide-react";
 import type {
   ThroughputResult,
   MemoryResult,
@@ -359,14 +360,14 @@ export default function PerformanceMonitor({ isOpen, onClose, onBanner }: Perfor
       <div className="perf-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label="Performance Benchmark" data-testid="performance-panel">
         <div className="perf-panel" onClick={(e) => e.stopPropagation()}>
           <div className="perf-header">
-            <h2>⚡ Performance Benchmark</h2>
-            <button type="button" className="perf-close" onClick={onClose} aria-label="Close performance benchmark panel" data-testid="perf-close-btn">✕</button>
+            <h2 className="flex items-center gap-2"><Zap size={20} /> Performance Benchmark</h2>
+            <button type="button" className="perf-close" onClick={onClose} aria-label="Close performance benchmark panel" data-testid="perf-close-btn"><X size={18} /></button>
           </div>
 
           {/* System Metrics */}
           <div className="perf-grid">
             <div className="perf-card" role="region" aria-label="System metrics" aria-live="polite" data-testid="perf-system-metrics">
-              <h3>📊 System Metrics</h3>
+              <h3 className="flex items-center gap-2"><BarChart3 size={16} /> System Metrics</h3>
               {systemMetrics ? (
                 <>
                   <div className="perf-metric">
@@ -401,31 +402,31 @@ export default function PerformanceMonitor({ isOpen, onClose, onBanner }: Perfor
             </div>
 
             <div className="perf-card" role="region" aria-label="Spec compliance status" data-testid="perf-spec-compliance">
-              <h3>✅ Spec Compliance (§16)</h3>
+              <h3 className="flex items-center gap-2"><ShieldCheck size={16} /> Spec Compliance (§16)</h3>
               {systemValidation ? (
                 <>
                   <div className="perf-metric">
                     <span className="perf-metric-label">Throughput ≥ 500 msg/sec</span>
                     <span className={`perf-badge ${systemValidation.throughputPass ? "perf-badge-pass" : "perf-badge-fail"}`}>
-                      {systemValidation.throughputPass ? "✅ PASS" : "❌ FAIL"}
+                      {systemValidation.throughputPass ? "PASS" : "FAIL"}
                     </span>
                   </div>
                   <div className="perf-metric">
                     <span className="perf-metric-label">{"Memory < 50 MB/hr"}</span>
                     <span className={`perf-badge ${systemValidation.memoryPass ? "perf-badge-pass" : "perf-badge-fail"}`}>
-                      {systemValidation.memoryPass ? "✅ PASS" : "❌ FAIL"}
+                      {systemValidation.memoryPass ? "PASS" : "FAIL"}
                     </span>
                   </div>
                   <div className="perf-metric">
                     <span className="perf-metric-label">{"CPU < 5%"}</span>
                     <span className={`perf-badge ${systemValidation.cpuPass ? "perf-badge-pass" : "perf-badge-fail"}`}>
-                      {systemValidation.cpuPass ? "✅ PASS" : "❌ FAIL"}
+                      {systemValidation.cpuPass ? "PASS" : "FAIL"}
                     </span>
                   </div>
                   <div className="perf-metric">
                     <span className="perf-metric-label">20 Concurrent Sessions</span>
                     <span className={`perf-badge ${systemValidation.concurrencyPass ? "perf-badge-pass" : "perf-badge-fail"}`}>
-                      {systemValidation.concurrencyPass ? "✅ PASS" : "❌ FAIL"}
+                      {systemValidation.concurrencyPass ? "PASS" : "FAIL"}
                     </span>
                   </div>
                 </>
@@ -439,7 +440,7 @@ export default function PerformanceMonitor({ isOpen, onClose, onBanner }: Perfor
 
           {/* Benchmark Controls */}
           <div className="perf-card" style={{ marginBottom: 16 }}>
-            <h3>🚀 Run Benchmarks</h3>
+            <h3 className="flex items-center gap-2"><Rocket size={16} /> Run Benchmarks</h3>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
               {/* Throughput */}
               <div>
@@ -547,7 +548,7 @@ export default function PerformanceMonitor({ isOpen, onClose, onBanner }: Perfor
           {/* History */}
           <div className="perf-card" data-testid="perf-history">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <h3 style={{ margin: 0 }}>📋 Benchmark History</h3>
+              <h3 style={{ margin: 0 }} className="flex items-center gap-2"><ClipboardList size={16} /> Benchmark History</h3>
               {history.length > 0 && (
                 <button
                   type="button"

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { FixedSizeList } from "react-window";
+import { AlertTriangle, Play, Pause, Download, FileText, Save, Check, Copy } from "lucide-react";
 
 type ViewMode = "HEX" | "BIN" | "ASCII" | "STRUCTURED";
 type DirectionFilter = "all" | "tx" | "rx";
@@ -71,7 +72,7 @@ const inputStyle: React.CSSProperties = {
   background: "#0f172a",
   color: "#e2e8f0",
   fontSize: 11,
-  fontFamily: "Consolas, 'SFMono-Regular', monospace",
+  fontFamily: "'JetBrains Mono', 'SFMono-Regular', monospace",
   outline: "none",
   minWidth: 140
 };
@@ -609,7 +610,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
               paddingRight: 60,
               borderLeft: `4px solid ${accent}`,
               background: item.isError ? "rgba(239, 68, 68, 0.15)" : index % 2 === 0 ? "#1e293b" : "#0f172a",
-              fontFamily: "Consolas, 'SFMono-Regular', monospace",
+              fontFamily: "'JetBrains Mono', 'SFMono-Regular', monospace",
               fontSize: 11,
               color: "#e2e8f0",
               position: "relative",
@@ -635,7 +636,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
               style={copyBtnStyle}
               title="Copy hex to clipboard"
             >
-              {copiedId === item.id ? "✓ Copied" : "Copy"}
+              {copiedId === item.id ? <span className="flex items-center gap-1"><Check size={10} /> Copied</span> : <span className="flex items-center gap-1"><Copy size={10} /> Copy</span>}
             </button>
           </div>
         );
@@ -652,7 +653,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
               paddingRight: 60,
               borderLeft: `4px solid ${accent}`,
               background: item.isError ? "rgba(239, 68, 68, 0.15)" : index % 2 === 0 ? "#1e293b" : "#0f172a",
-              fontFamily: "Consolas, 'SFMono-Regular', monospace",
+              fontFamily: "'JetBrains Mono', 'SFMono-Regular', monospace",
               fontSize: 11,
               color: "#e2e8f0",
               position: "relative",
@@ -690,7 +691,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
               style={copyBtnStyle}
               title="Copy hex to clipboard"
             >
-              {copiedId === item.id ? "✓ Copied" : "Copy"}
+              {copiedId === item.id ? <span className="flex items-center gap-1"><Check size={10} /> Copied</span> : <span className="flex items-center gap-1"><Copy size={10} /> Copy</span>}
             </button>
           </div>
         );
@@ -718,7 +719,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
               paddingRight: 60,
               borderLeft: `4px solid ${accent}`,
               background: item.isError ? "rgba(239, 68, 68, 0.15)" : index % 2 === 0 ? "#1e293b" : "#0f172a",
-              fontFamily: "Consolas, 'SFMono-Regular', monospace",
+              fontFamily: "'JetBrains Mono', 'SFMono-Regular', monospace",
               fontSize: 11,
               color: "#e2e8f0",
               position: "relative",
@@ -778,7 +779,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
               style={copyBtnStyle}
               title="Copy hex to clipboard"
             >
-              {copiedId === item.id ? "✓ Copied" : "Copy"}
+              {copiedId === item.id ? <span className="flex items-center gap-1"><Check size={10} /> Copied</span> : <span className="flex items-center gap-1"><Copy size={10} /> Copy</span>}
             </button>
           </div>
         );
@@ -794,7 +795,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
             paddingRight: 60,
             borderLeft: `4px solid ${accent}`,
             background: item.isError ? "rgba(239, 68, 68, 0.15)" : index % 2 === 0 ? "#1e293b" : "#0f172a",
-            fontFamily: "Consolas, 'SFMono-Regular', monospace",
+            fontFamily: "'JetBrains Mono', 'SFMono-Regular', monospace",
             fontSize: 11,
             color: "#e2e8f0",
             position: "relative",
@@ -876,7 +877,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
           style={errorsOnly ? btnActive : btnBase}
           title="Toggle errors-only filter"
         >
-          {errorsOnly ? "⚠ Errors Only" : "All Frames"}
+          {errorsOnly ? <span className="flex items-center gap-1"><AlertTriangle size={12} /> Errors Only</span> : "All Frames"}
         </button>
 
         {/* protocol filter (only shown when multiple protocols exist) */}
@@ -938,7 +939,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
             position: "relative"
           }}
         >
-          {paused ? "▶ Resume" : "⏸ Pause"}
+          {paused ? <span className="flex items-center gap-1"><Play size={12} /> Resume</span> : <span className="flex items-center gap-1"><Pause size={12} /> Pause</span>}
           {paused && pausedCount > 0 && (
             <span style={{ ...badgeStyle, marginLeft: 6 }}>{pausedCount}</span>
           )}
@@ -952,7 +953,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
             onClick={() => setExportOpen((v) => !v)}
             style={btnBase}
           >
-            ⬇ Export
+            <span className="flex items-center gap-1"><Download size={12} /> Export</span>
           </button>
           {exportOpen && (
             <div
@@ -989,7 +990,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
                 onMouseEnter={(e) => (e.currentTarget.style.background = "#334155")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
-                📄 Export as .txt (hex dump)
+                <span className="flex items-center gap-2"><FileText size={14} /> Export as .txt (hex dump)</span>
               </button>
               <button
                 type="button"
@@ -1009,7 +1010,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
                 onMouseEnter={(e) => (e.currentTarget.style.background = "#334155")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
-                💾 Export as .bin (raw bytes)
+                <span className="flex items-center gap-2"><Save size={14} /> Export as .bin (raw bytes)</span>
               </button>
             </div>
           )}
