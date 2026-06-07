@@ -1,25 +1,20 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { FixedSizeList } from "react-window";
+import { AlertTriangle, Play, Pause, Download, FileText, Save, Check, Copy } from "lucide-react";
+import { toHex, toBin, toAscii, decodeStructured, matchesSearch } from "../lib/traffic-decoders";
+import type { TrafficEvent } from "../lib/traffic-decoders";
 
 type ViewMode = "HEX" | "BIN" | "ASCII" | "STRUCTURED";
 type DirectionFilter = "all" | "tx" | "rx";
 
-type TrafficEvent = {
-  id: string;
-  direction: "tx" | "rx";
-  timestamp: number;
-  rawBytes: Uint8Array;
-  length: number;
-  isError: boolean;
-  protocolId?: string;
-  parsedFields?: Record<string, unknown>;
-};
+/* ── Keyboard shortcut label map ───────────────────────────────── */
 
-interface StructuredField {
-  label: string;
-  value: string;
-  offset: number;
-}
+const VIEW_MODE_SHORTCUTS: Record<ViewMode, string> = {
+  HEX: "H",
+  BIN: "B",
+  ASCII: "A",
+  STRUCTURED: "S"
+};
 
 /* ── shared styles ─────────────────────────────────────────────── */
 
@@ -29,16 +24,16 @@ const panelStyle: React.CSSProperties = {
   flexDirection: "column",
   borderRadius: 16,
   overflow: "hidden",
-  border: "1px solid #d7e3f4",
-  background: "#f8fbff"
+  border: "1px solid rgba(51, 65, 85, 0.5)",
+  background: "#1e293b"
 };
 
 const toolbarStyle: React.CSSProperties = {
   display: "flex",
   gap: 8,
   padding: "8px 12px",
-  borderBottom: "1px solid #d7e3f4",
-  background: "#ffffff",
+  borderBottom: "1px solid rgba(51, 65, 85, 0.5)",
+  background: "#0f172a",
   alignItems: "center",
   flexWrap: "wrap"
 };
@@ -47,9 +42,9 @@ const btnBase: React.CSSProperties = {
   height: 28,
   padding: "0 10px",
   borderRadius: 999,
-  border: "1px solid #d7e3f4",
-  background: "#ffffff",
-  color: "#475569",
+  border: "1px solid rgba(51, 65, 85, 0.5)",
+  background: "#0f172a",
+  color: "#94a3b8",
   fontWeight: 600,
   fontSize: 11,
   cursor: "pointer",
@@ -58,18 +53,20 @@ const btnBase: React.CSSProperties = {
 
 const btnActive: React.CSSProperties = {
   ...btnBase,
-  border: "1px solid #93c5fd",
-  background: "#e8f0ff",
-  color: "#1d4ed8"
+  border: "1px solid #3b82f6",
+  background: "rgba(59, 130, 246, 0.15)",
+  color: "#93c5fd"
 };
 
 const inputStyle: React.CSSProperties = {
   height: 28,
   padding: "0 8px",
   borderRadius: 6,
-  border: "1px solid #d7e3f4",
+  border: "1px solid rgba(51, 65, 85, 0.5)",
+  background: "#0f172a",
+  color: "#e2e8f0",
   fontSize: 11,
-  fontFamily: "Consolas, 'SFMono-Regular', monospace",
+  fontFamily: "'JetBrains Mono', 'SFMono-Regular', monospace",
   outline: "none",
   minWidth: 140
 };
@@ -77,7 +74,8 @@ const inputStyle: React.CSSProperties = {
 const selectStyle: React.CSSProperties = {
   ...inputStyle,
   cursor: "pointer",
-  minWidth: 100
+  minWidth: 100,
+  appearance: "none" as const
 };
 
 const badgeStyle: React.CSSProperties = {
@@ -97,7 +95,7 @@ const badgeStyle: React.CSSProperties = {
 const separatorStyle: React.CSSProperties = {
   width: 1,
   height: 20,
-  background: "#d7e3f4",
+  background: "rgba(51, 65, 85, 0.5)",
   margin: "0 4px"
 };
 
@@ -108,323 +106,14 @@ const copyBtnStyle: React.CSSProperties = {
   height: 22,
   padding: "0 6px",
   borderRadius: 4,
-  border: "1px solid #d7e3f4",
-  background: "#ffffff",
-  color: "#475569",
+  border: "1px solid rgba(51, 65, 85, 0.5)",
+  background: "#1e293b",
+  color: "#94a3b8",
   fontSize: 10,
   fontWeight: 600,
   cursor: "pointer",
   opacity: 0,
   transition: "opacity 0.15s"
-};
-
-/* ── Modbus function code names ────────────────────────────────── */
-
-const MODBUS_FC_NAMES: Record<number, string> = {
-  0x01: "Read Coils",
-  0x02: "Read Discrete Inputs",
-  0x03: "Read Holding Registers",
-  0x04: "Read Input Registers",
-  0x05: "Write Single Coil",
-  0x06: "Write Single Register",
-  0x0f: "Write Multiple Coils",
-  0x10: "Write Multiple Registers"
-};
-
-/* ── helpers ───────────────────────────────────────────────────── */
-
-function toHex(bytes: Uint8Array) {
-  return Array.from(bytes).map((v) => v.toString(16).padStart(2, "0")).join(" ");
-}
-
-function toBin(bytes: Uint8Array) {
-  return Array.from(bytes).map((v) => v.toString(2).padStart(8, "0")).join(" ");
-}
-
-function toAscii(bytes: Uint8Array) {
-  return Array.from(bytes).map((v) => (v >= 32 && v <= 126 ? String.fromCharCode(v) : ".")).join("");
-}
-
-/**
- * Compute CRC-16/Modbus (polynomial 0xA001, init 0xFFFF).
- */
-function crc16Modbus(data: Uint8Array): number {
-  let crc = 0xffff;
-  for (let i = 0; i < data.length; i++) {
-    crc ^= data[i];
-    for (let j = 0; j < 8; j++) {
-      crc = crc & 1 ? (crc >> 1) ^ 0xa001 : crc >> 1;
-    }
-  }
-  return crc;
-}
-
-/**
- * Compute LRC (Longitudinal Redundancy Check) — sum of bytes mod 256, two's complement.
- */
-function lrc(data: Uint8Array): number {
-  let sum = 0;
-  for (let i = 0; i < data.length; i++) {
-    sum = (sum + data[i]) & 0xff;
-  }
-  return (~sum + 1) & 0xff;
-}
-
-/**
- * Attempt to decode a Modbus TCP frame (MBAP header + PDU).
- * Returns structured fields or null if not a valid Modbus TCP frame.
- */
-function decodeModbusTcp(bytes: Uint8Array): StructuredField[] | null {
-  // Modbus TCP minimum: 7 bytes MBAP header + 1 byte unitId + 1 byte FC = 9
-  if (bytes.length < 9) return null;
-
-  const transactionId = (bytes[0] << 8) | bytes[1];
-  const protocolId = (bytes[2] << 8) | bytes[3];
-  const length = (bytes[4] << 8) | bytes[5];
-  const unitId = bytes[6];
-  const functionCode = bytes[7];
-
-  // Protocol ID must be 0x0000 for Modbus
-  if (protocolId !== 0x0000) return null;
-  // Length field should match remaining bytes
-  if (length !== bytes.length - 6) return null;
-
-  const fields: StructuredField[] = [
-    { label: "Transaction ID", value: `0x${transactionId.toString(16).padStart(4, "0")}`, offset: 0 },
-    { label: "Protocol ID", value: `0x${protocolId.toString(16).padStart(4, "0")} (Modbus)`, offset: 2 },
-    { label: "Length", value: `${length} bytes`, offset: 4 },
-    { label: "Unit ID", value: `${unitId}`, offset: 6 },
-    { label: "Function Code", value: `0x${functionCode.toString(16).padStart(2, "0")} (${MODBUS_FC_NAMES[functionCode] ?? "Unknown"})`, offset: 7 }
-  ];
-
-  const isException = functionCode >= 0x80;
-  if (isException) {
-    const excCode = bytes.length > 8 ? bytes[8] : 0;
-    fields.push({ label: "Exception Code", value: `${excCode}`, offset: 8 });
-    return fields;
-  }
-
-  // Parse data based on function code
-  if (functionCode <= 0x04 && bytes.length > 9) {
-    const byteCount = bytes[8];
-    fields.push({ label: "Byte Count", value: `${byteCount}`, offset: 8 });
-    if (functionCode <= 0x02) {
-      // Bit-packed data
-      const bitData = bytes.slice(9, 9 + byteCount);
-      fields.push({ label: "Bit Data", value: toHex(bitData), offset: 9 });
-    } else {
-      // Register data
-      const regData = bytes.slice(9, 9 + byteCount);
-      const registers: number[] = [];
-      for (let i = 0; i + 1 < regData.length; i += 2) {
-        registers.push((regData[i] << 8) | regData[i + 1]);
-      }
-      fields.push({ label: "Registers", value: `[${registers.join(", ")}]`, offset: 9 });
-    }
-  } else if ((functionCode === 0x05 || functionCode === 0x06) && bytes.length >= 12) {
-    const address = (bytes[8] << 8) | bytes[9];
-    const value = (bytes[10] << 8) | bytes[11];
-    fields.push({ label: "Address", value: `${address}`, offset: 8 });
-    fields.push({ label: "Value", value: `0x${value.toString(16).padStart(4, "0")} (${value})`, offset: 10 });
-  } else if ((functionCode === 0x0f || functionCode === 0x10) && bytes.length >= 12) {
-    const address = (bytes[8] << 8) | bytes[9];
-    const quantity = (bytes[10] << 8) | bytes[11];
-    fields.push({ label: "Address", value: `${address}`, offset: 8 });
-    fields.push({ label: "Quantity", value: `${quantity}`, offset: 10 });
-    if (bytes.length > 12) {
-      const byteCount = bytes[12];
-      fields.push({ label: "Byte Count", value: `${byteCount}`, offset: 12 });
-      if (bytes.length > 13) {
-        const data = bytes.slice(13, 13 + byteCount);
-        fields.push({ label: "Data", value: toHex(data), offset: 13 });
-      }
-    }
-  }
-
-  return fields;
-}
-
-/**
- * Attempt to decode a Modbus RTU frame (Unit ID + PDU + CRC16).
- */
-function decodeModbusRtu(bytes: Uint8Array): StructuredField[] | null {
-  // Modbus RTU minimum: 1 unitId + 1 FC + 2 CRC = 4
-  if (bytes.length < 4) return null;
-
-  const unitId = bytes[0];
-  const functionCode = bytes[1];
-
-  // Validate CRC
-  const frameCrc = bytes[bytes.length - 2] | (bytes[bytes.length - 1] << 8);
-  const computedCrc = crc16Modbus(bytes.slice(0, bytes.length - 2));
-  const crcValid = frameCrc === computedCrc;
-
-  const fields: StructuredField[] = [
-    { label: "Unit ID", value: `${unitId}`, offset: 0 },
-    { label: "Function Code", value: `0x${functionCode.toString(16).padStart(2, "0")} (${MODBUS_FC_NAMES[functionCode] ?? "Unknown"})`, offset: 1 },
-    { label: "CRC-16", value: `0x${frameCrc.toString(16).padStart(4, "0")} ${crcValid ? "✓ Valid" : "✗ Invalid"}`, offset: bytes.length - 2 }
-  ];
-
-  const isException = functionCode >= 0x80;
-  if (isException) {
-    const excCode = bytes.length > 2 ? bytes[2] : 0;
-    fields.push({ label: "Exception Code", value: `${excCode}`, offset: 2 });
-    return fields;
-  }
-
-  // Parse data based on function code
-  if (functionCode <= 0x04 && bytes.length > 3) {
-    const byteCount = bytes[2];
-    fields.push({ label: "Byte Count", value: `${byteCount}`, offset: 2 });
-    if (functionCode <= 0x02) {
-      const bitData = bytes.slice(3, 3 + byteCount);
-      fields.push({ label: "Bit Data", value: toHex(bitData), offset: 3 });
-    } else {
-      const regData = bytes.slice(3, 3 + byteCount);
-      const registers: number[] = [];
-      for (let i = 0; i + 1 < regData.length; i += 2) {
-        registers.push((regData[i] << 8) | regData[i + 1]);
-      }
-      fields.push({ label: "Registers", value: `[${registers.join(", ")}]`, offset: 3 });
-    }
-  } else if ((functionCode === 0x05 || functionCode === 0x06) && bytes.length >= 8) {
-    const address = (bytes[2] << 8) | bytes[3];
-    const value = (bytes[4] << 8) | bytes[5];
-    fields.push({ label: "Address", value: `${address}`, offset: 2 });
-    fields.push({ label: "Value", value: `0x${value.toString(16).padStart(4, "0")} (${value})`, offset: 4 });
-  } else if ((functionCode === 0x0f || functionCode === 0x10) && bytes.length >= 9) {
-    const address = (bytes[2] << 8) | bytes[3];
-    const quantity = (bytes[4] << 8) | bytes[5];
-    const byteCount = bytes[6];
-    fields.push({ label: "Address", value: `${address}`, offset: 2 });
-    fields.push({ label: "Quantity", value: `${quantity}`, offset: 4 });
-    fields.push({ label: "Byte Count", value: `${byteCount}`, offset: 6 });
-    if (bytes.length > 7) {
-      const data = bytes.slice(7, 7 + byteCount);
-      fields.push({ label: "Data", value: toHex(data), offset: 7 });
-    }
-  }
-
-  return fields;
-}
-
-/**
- * Decode raw frame with CRC/LRC annotations.
- */
-function decodeRawWithChecksum(bytes: Uint8Array): StructuredField[] {
-  const fields: StructuredField[] = [];
-
-  if (bytes.length === 0) {
-    fields.push({ label: "Info", value: "Empty frame", offset: 0 });
-    return fields;
-  }
-
-  fields.push({ label: "Length", value: `${bytes.length} bytes`, offset: 0 });
-  fields.push({ label: "Hex", value: toHex(bytes), offset: 0 });
-
-  // Try CRC-16 (last 2 bytes)
-  if (bytes.length >= 3) {
-    const frameCrc = bytes[bytes.length - 2] | (bytes[bytes.length - 1] << 8);
-    const computedCrc = crc16Modbus(bytes.slice(0, bytes.length - 2));
-    fields.push({
-      label: "CRC-16 (Modbus)",
-      value: `Frame: 0x${frameCrc.toString(16).padStart(4, "0")} | Computed: 0x${computedCrc.toString(16).padStart(4, "0")} ${frameCrc === computedCrc ? "✓ Match" : "✗ Mismatch"}`,
-      offset: bytes.length - 2
-    });
-  }
-
-  // Try LRC (last byte)
-  if (bytes.length >= 2) {
-    const frameLrc = bytes[bytes.length - 1];
-    const computedLrc = lrc(bytes.slice(0, bytes.length - 1));
-    fields.push({
-      label: "LRC",
-      value: `Frame: 0x${frameLrc.toString(16).padStart(2, "0")} | Computed: 0x${computedLrc.toString(16).padStart(2, "0")} ${frameLrc === computedLrc ? "✓ Match" : "✗ Mismatch"}`,
-      offset: bytes.length - 1
-    });
-  }
-
-  return fields;
-}
-
-/**
- * Main structured decoder: tries Modbus TCP, Modbus RTU, then raw with checksums.
- */
-function decodeStructured(item: TrafficEvent): StructuredField[] {
-  const bytes = item.rawBytes;
-  const protocolId = item.protocolId?.toLowerCase() ?? "";
-
-  // If we have parsedFields from the protocol engine, use them first
-  if (item.parsedFields && Object.keys(item.parsedFields).length > 0) {
-    const fields: StructuredField[] = [];
-    let offset = 0;
-    for (const [key, val] of Object.entries(item.parsedFields)) {
-      const displayVal = typeof val === "object" ? JSON.stringify(val) : String(val);
-      fields.push({ label: key, value: displayVal, offset });
-      offset++;
-    }
-    // Also show raw hex at the end
-    fields.push({ label: "Raw Hex", value: toHex(bytes), offset: 0 });
-    return fields;
-  }
-
-  // Try protocol-specific decoding
-  if (protocolId.includes("modbus-tcp")) {
-    const result = decodeModbusTcp(bytes);
-    if (result) return result;
-  }
-
-  if (protocolId.includes("modbus-rtu")) {
-    const result = decodeModbusRtu(bytes);
-    if (result) return result;
-  }
-
-  // Try Modbus TCP heuristic (protocol ID 0x0000)
-  if (bytes.length >= 9) {
-    const protoId = (bytes[2] << 8) | bytes[3];
-    if (protoId === 0x0000) {
-      const result = decodeModbusTcp(bytes);
-      if (result) return result;
-    }
-  }
-
-  // Try Modbus RTU heuristic (valid CRC)
-  if (bytes.length >= 4) {
-    const frameCrc = bytes[bytes.length - 2] | (bytes[bytes.length - 1] << 8);
-    const computedCrc = crc16Modbus(bytes.slice(0, bytes.length - 2));
-    if (frameCrc === computedCrc) {
-      const result = decodeModbusRtu(bytes);
-      if (result) return result;
-    }
-  }
-
-  // Fallback: raw with checksum annotations
-  return decodeRawWithChecksum(bytes);
-}
-
-function matchesSearch(item: TrafficEvent, query: string): boolean {
-  if (!query) return true;
-  const q = query.toLowerCase();
-  // search hex bytes
-  if (toHex(item.rawBytes).toLowerCase().includes(q)) return true;
-  // search direction
-  if (item.direction.toLowerCase().includes(q)) return true;
-  // search parsed fields
-  if (item.parsedFields) {
-    for (const val of Object.values(item.parsedFields)) {
-      if (String(val).toLowerCase().includes(q)) return true;
-    }
-  }
-  return false;
-}
-
-/* ── Keyboard shortcut label map ───────────────────────────────── */
-
-const VIEW_MODE_SHORTCUTS: Record<ViewMode, string> = {
-  HEX: "H",
-  BIN: "B",
-  ASCII: "A",
-  STRUCTURED: "S"
 };
 
 /* ── component ─────────────────────────────────────────────────── */
@@ -605,10 +294,10 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
               padding: "6px 12px",
               paddingRight: 60,
               borderLeft: `4px solid ${accent}`,
-              background: item.isError ? "#fff1f2" : index % 2 === 0 ? "#ffffff" : "#f8fbff",
-              fontFamily: "Consolas, 'SFMono-Regular', monospace",
+              background: item.isError ? "rgba(239, 68, 68, 0.15)" : index % 2 === 0 ? "#1e293b" : "#0f172a",
+              fontFamily: "'JetBrains Mono', 'SFMono-Regular', monospace",
               fontSize: 11,
-              color: "#1e293b",
+              color: "#e2e8f0",
               position: "relative",
               lineHeight: "22px"
             }}
@@ -632,7 +321,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
               style={copyBtnStyle}
               title="Copy hex to clipboard"
             >
-              {copiedId === item.id ? "✓ Copied" : "Copy"}
+              {copiedId === item.id ? <span className="flex items-center gap-1"><Check size={10} /> Copied</span> : <span className="flex items-center gap-1"><Copy size={10} /> Copy</span>}
             </button>
           </div>
         );
@@ -648,10 +337,10 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
               padding: "6px 12px",
               paddingRight: 60,
               borderLeft: `4px solid ${accent}`,
-              background: item.isError ? "#fff1f2" : index % 2 === 0 ? "#ffffff" : "#f8fbff",
-              fontFamily: "Consolas, 'SFMono-Regular', monospace",
+              background: item.isError ? "rgba(239, 68, 68, 0.15)" : index % 2 === 0 ? "#1e293b" : "#0f172a",
+              fontFamily: "'JetBrains Mono', 'SFMono-Regular', monospace",
               fontSize: 11,
-              color: "#1e293b",
+              color: "#e2e8f0",
               position: "relative",
               lineHeight: "22px",
               overflow: "hidden",
@@ -675,8 +364,8 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
               const bin = v.toString(2).padStart(8, "0");
               return (
                 <span key={i} style={{ marginRight: 4 }}>
-                  <span style={{ color: "#6366f1" }}>{bin.slice(0, 4)}</span>
-                  <span style={{ color: "#0891b2" }}>{bin.slice(4)}</span>
+                  <span style={{ color: "#818cf8" }}>{bin.slice(0, 4)}</span>
+                  <span style={{ color: "#22d3ee" }}>{bin.slice(4)}</span>
                 </span>
               );
             })}
@@ -687,7 +376,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
               style={copyBtnStyle}
               title="Copy hex to clipboard"
             >
-              {copiedId === item.id ? "✓ Copied" : "Copy"}
+              {copiedId === item.id ? <span className="flex items-center gap-1"><Check size={10} /> Copied</span> : <span className="flex items-center gap-1"><Copy size={10} /> Copy</span>}
             </button>
           </div>
         );
@@ -714,10 +403,10 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
               padding: "6px 12px",
               paddingRight: 60,
               borderLeft: `4px solid ${accent}`,
-              background: item.isError ? "#fff1f2" : index % 2 === 0 ? "#ffffff" : "#f8fbff",
-              fontFamily: "Consolas, 'SFMono-Regular', monospace",
+              background: item.isError ? "rgba(239, 68, 68, 0.15)" : index % 2 === 0 ? "#1e293b" : "#0f172a",
+              fontFamily: "'JetBrains Mono', 'SFMono-Regular', monospace",
               fontSize: 11,
-              color: "#1e293b",
+              color: "#e2e8f0",
               position: "relative",
               lineHeight: "18px"
             }}
@@ -743,11 +432,11 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
                 {/* Hex bytes */}
                 <span style={{ minWidth: ROW_SIZE * 24 }}>
                   {row.hex.map((h, hi) => (
-                    <span key={hi} style={{ marginRight: 4, color: "#475569" }}>{h}</span>
+                    <span key={hi} style={{ marginRight: 4, color: "#94a3b8" }}>{h}</span>
                   ))}
                   {/* Pad if last row is short */}
                   {row.hex.length < ROW_SIZE && (
-                    <span style={{ color: "#cbd5e1" }}>
+                    <span style={{ color: "rgba(51, 65, 85, 0.5)" }}>
                       {"   ".repeat(ROW_SIZE - row.hex.length)}
                     </span>
                   )}
@@ -758,7 +447,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
                     <span
                       key={ci}
                       style={{
-                        color: ch === "." ? "#cbd5e1" : "#0f766e",
+                        color: ch === "." ? "rgba(51, 65, 85, 0.5)" : "#2dd4bf",
                         fontWeight: ch === "." ? 400 : 600
                       }}
                     >
@@ -775,7 +464,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
               style={copyBtnStyle}
               title="Copy hex to clipboard"
             >
-              {copiedId === item.id ? "✓ Copied" : "Copy"}
+              {copiedId === item.id ? <span className="flex items-center gap-1"><Check size={10} /> Copied</span> : <span className="flex items-center gap-1"><Copy size={10} /> Copy</span>}
             </button>
           </div>
         );
@@ -790,10 +479,10 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
             padding: "6px 12px",
             paddingRight: 60,
             borderLeft: `4px solid ${accent}`,
-            background: item.isError ? "#fff1f2" : index % 2 === 0 ? "#ffffff" : "#f8fbff",
-            fontFamily: "Consolas, 'SFMono-Regular', monospace",
+            background: item.isError ? "rgba(239, 68, 68, 0.15)" : index % 2 === 0 ? "#1e293b" : "#0f172a",
+            fontFamily: "'JetBrains Mono', 'SFMono-Regular', monospace",
             fontSize: 11,
-            color: "#1e293b",
+            color: "#e2e8f0",
             position: "relative",
             lineHeight: "18px"
           }}
@@ -813,8 +502,8 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
           <div style={{ marginTop: 2 }}>
             {fields.map((field, fi) => (
               <span key={fi} style={{ marginRight: 12 }}>
-                <span style={{ color: "#6366f1", fontWeight: 600 }}>{field.label}:</span>{" "}
-                <span style={{ color: "#0f172a" }}>{field.value}</span>
+                <span style={{ color: "#818cf8", fontWeight: 600 }}>{field.label}:</span>{" "}
+                <span style={{ color: "#e2e8f0" }}>{field.value}</span>
               </span>
             ))}
           </div>
@@ -873,7 +562,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
           style={errorsOnly ? btnActive : btnBase}
           title="Toggle errors-only filter"
         >
-          {errorsOnly ? "⚠ Errors Only" : "All Frames"}
+          {errorsOnly ? <span className="flex items-center gap-1"><AlertTriangle size={12} /> Errors Only</span> : "All Frames"}
         </button>
 
         {/* protocol filter (only shown when multiple protocols exist) */}
@@ -931,11 +620,11 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
           aria-pressed={paused}
           onClick={() => setPaused((v) => !v)}
           style={{
-            ...(paused ? { ...btnBase, background: "#fef3c7", borderColor: "#f59e0b", color: "#92400e" } : btnBase),
+            ...(paused ? { ...btnBase, background: "rgba(245, 158, 11, 0.15)", borderColor: "#f59e0b", color: "#fbbf24" } : btnBase),
             position: "relative"
           }}
         >
-          {paused ? "▶ Resume" : "⏸ Pause"}
+          {paused ? <span className="flex items-center gap-1"><Play size={12} /> Resume</span> : <span className="flex items-center gap-1"><Pause size={12} /> Pause</span>}
           {paused && pausedCount > 0 && (
             <span style={{ ...badgeStyle, marginLeft: 6 }}>{pausedCount}</span>
           )}
@@ -949,7 +638,7 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
             onClick={() => setExportOpen((v) => !v)}
             style={btnBase}
           >
-            ⬇ Export
+            <span className="flex items-center gap-1"><Download size={12} /> Export</span>
           </button>
           {exportOpen && (
             <div
@@ -959,10 +648,10 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
                 top: "100%",
                 right: 0,
                 marginTop: 4,
-                background: "#ffffff",
-                border: "1px solid #d7e3f4",
+                background: "#1e293b",
+                border: "1px solid rgba(51, 65, 85, 0.5)",
                 borderRadius: 8,
-                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
                 zIndex: 10,
                 minWidth: 160,
                 overflow: "hidden"
@@ -981,12 +670,12 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
                   textAlign: "left",
                   fontSize: 12,
                   cursor: "pointer",
-                  color: "#1e293b"
+                  color: "#e2e8f0"
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#f1f5f9")}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "#334155")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
-                📄 Export as .txt (hex dump)
+                <span className="flex items-center gap-2"><FileText size={14} /> Export as .txt (hex dump)</span>
               </button>
               <button
                 type="button"
@@ -1001,12 +690,12 @@ export default function TrafficMonitor({ traffic }: { traffic: TrafficEvent[] })
                   textAlign: "left",
                   fontSize: 12,
                   cursor: "pointer",
-                  color: "#1e293b"
+                  color: "#e2e8f0"
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#f1f5f9")}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "#334155")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
-                💾 Export as .bin (raw bytes)
+                <span className="flex items-center gap-2"><Save size={14} /> Export as .bin (raw bytes)</span>
               </button>
             </div>
           )}

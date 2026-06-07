@@ -565,7 +565,7 @@ export default function PollTaskManager({ sessions, onBanner }: PollTaskManagerP
                       <td
                         style={{
                           padding: "6px 10px",
-                          fontFamily: "Consolas, monospace",
+                          fontFamily: "'JetBrains Mono', monospace",
                           color: record.lastError ? "#b91c1c" : "#15803d",
                           maxWidth: 200,
                           overflow: "hidden",

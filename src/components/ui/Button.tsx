@@ -1,87 +1,69 @@
-import React from "react";
+import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
+import { cn } from "../../lib/utils"
 
-type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
-type ButtonSize = "sm" | "md" | "lg";
+const buttonVariants = cva(
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        primary: "bg-primary text-primary-foreground hover:bg-primary/90",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        danger: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default: "h-10 px-4 py-2",
+        sm: "h-9 rounded-md px-3",
+        lg: "h-11 rounded-md px-8",
+        icon: "h-10 w-10",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+)
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  loading?: boolean;
-  iconLeft?: React.ReactNode;
-  iconRight?: React.ReactNode;
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean
+  loading?: boolean
 }
 
-const sizeClasses: Record<ButtonSize, string> = {
-  sm: "h-7 px-2.5 text-xs",
-  md: "h-9 px-3.5 text-sm",
-  lg: "h-11 px-5 text-base",
-};
-
-const variantClasses: Record<ButtonVariant, string> = {
-  primary:
-    "bg-gradient-to-br from-blue-600 to-cyan-600 text-white hover:from-blue-500 hover:to-cyan-500 focus-visible:ring-blue-500",
-  secondary:
-    "bg-slate-700 text-slate-200 hover:bg-slate-600 border border-slate-600 focus-visible:ring-blue-400",
-  danger:
-    "bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-500",
-  ghost:
-    "bg-transparent text-slate-300 border border-slate-600 hover:bg-slate-700 hover:text-slate-100 focus-visible:ring-gray-400",
-};
-
-const spinnerStyle: React.CSSProperties = {
-  display: "inline-block",
-  width: 14,
-  height: 14,
-  border: "2px solid currentColor",
-  borderTopColor: "transparent",
-  borderRadius: "50%",
-  animation: "btn-spin 0.6s linear infinite",
-};
-
-export default function Button({
-  variant = "primary",
-  size = "md",
-  loading = false,
-  iconLeft,
-  iconRight,
-  disabled,
-  className = "",
-  children,
-  ...rest
-}: ButtonProps) {
-  const isDisabled = disabled || loading;
-
-  return (
-    <>
-      <style>{`@keyframes btn-spin { to { transform: rotate(360deg); } }`}</style>
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, loading, disabled, children, ...props }, ref) => {
+    return (
       <button
-        type="button"
-        className={[
-          "inline-flex items-center justify-center gap-1.5 rounded-xl font-bold cursor-pointer",
-          "transition-all duration-150 ease-in-out",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900",
-          sizeClasses[size],
-          variantClasses[variant],
-          isDisabled ? "opacity-50 cursor-not-allowed pointer-events-none" : "",
-          className,
-        ]
-          .filter(Boolean)
-          .join(" ")}
-        disabled={isDisabled}
-        aria-disabled={isDisabled}
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        disabled={disabled || loading}
         aria-busy={loading}
-        {...rest}
+        {...props}
       >
-        {loading ? (
-          <span style={spinnerStyle} aria-hidden="true" />
-        ) : (
-          iconLeft && <span className="inline-flex shrink-0" aria-hidden="true">{iconLeft}</span>
+        {loading && (
+          <svg
+            className="mr-2 h-4 w-4 animate-spin"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
         )}
         {children}
-        {iconRight && !loading && (
-          <span className="inline-flex shrink-0" aria-hidden="true">{iconRight}</span>
-        )}
       </button>
-    </>
-  );
-}
+    )
+  }
+)
+Button.displayName = "Button"
+
+export { Button, buttonVariants }

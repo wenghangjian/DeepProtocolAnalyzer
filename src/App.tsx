@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useRef, useState, useCallback } from "react";
 import type {
   ProtocolManifest,
   SerialPortInfo,
@@ -9,6 +9,7 @@ import ConfigTemplates from "./components/ConfigTemplates";
 import PerformanceMonitor from "./components/PerformanceMonitor";
 import AppShell from "./components/layout/AppShell";
 import { useSessionStore } from "./store/session-store";
+import { useTheme } from "./lib/use-theme";
 
 const NUMBER_FIELDS = new Set([
   "port",
@@ -185,6 +186,7 @@ export default function App() {
   const [templatePanelOpen, setTemplatePanelOpen] = useState(false);
   const [pollManagerOpen, setPollManagerOpen] = useState(false);
   const [performancePanelOpen, setPerformancePanelOpen] = useState(false);
+  const [theme, handleToggleTheme] = useTheme();
   const skipDraftPresetResetRef = useRef(false);
 
   const selectedManifest = manifests.find((manifest) => manifest.protocolId === selectedProtocolId);
@@ -590,6 +592,8 @@ export default function App() {
         onInvokeCapability={(action) => void invokeCapabilityAction(action)}
         onTrafficQueryChange={setTrafficQuery}
         onBanner={setBanner}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
       />
       <ConfigTemplates
         isOpen={templatePanelOpen}
